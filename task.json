@@ -202,6 +202,22 @@
       "passes": true,
       "completedAt": "2026-02-13",
       "notes": "包结构：types, config, sandbox, models, tools, agents, workflow, sdk, cli"
+    },
+    {
+      "id": "feat-014",
+      "category": "testing",
+      "description": "测试覆盖完善 - config/agents/cli 模块测试",
+      "priority": "medium",
+      "steps": [
+        "为 config 模块添加测试（ConfigLoader 加载、验证、环境变量）",
+        "为 agents 模块添加测试（BaseAgent 构造、执行、流式处理）",
+        "为 cli 模块添加测试（Logger、ProgressIndicator、StepProgress）",
+        "更新各包的 package.json 添加 test 脚本",
+        "创建各包的 vitest.config.ts 配置"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13",
+      "notes": "总计 165 个测试通过：config(24) + sandbox(29) + models(27) + tools(24) + agents(20) + workflow(15) + cli(26)"
     }
   ],
   "metadata": {
