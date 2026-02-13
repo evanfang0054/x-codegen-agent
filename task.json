@@ -142,6 +142,21 @@
       ],
       "passes": true,
       "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-011",
+      "category": "docs",
+      "description": "文档和示例完善 - README 和代码示例",
+      "priority": "low",
+      "steps": [
+        "完善 README.md 文档",
+        "创建 Agent 使用示例",
+        "创建模型管理示例",
+        "创建沙箱操作示例",
+        "创建工作流示例"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
     }
   ],
   "metadata": {

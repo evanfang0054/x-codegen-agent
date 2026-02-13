@@ -1,83 +1,307 @@
 # X-CodeGen-Agent
 
-基于 LangChain 的代码生成 Agent
+基于 LangChain.js 的前端代码生成 Agent SDK，支持多种 LLM 提供商和完整的工作流编排。
+
+## 特性
+
+- **多模型支持**: OpenAI、Anthropic、DeepSeek、智谱 GLM、通义千问、月之暗面、百川、MiniMax
+- **LangGraph 工作流**: 多步骤代码生成工作流，支持检查点持久化和恢复
+- **MCP 集成**: Figma 设计数据提取、知识库 PRD 查询
+- **沙箱环境**: 隔离的代码执行环境，支持 Git 克隆和依赖安装
+- **LCEL 架构**: 使用 LangChain Expression Language 构建可组合的 Agent 链
 
 ## 技术栈
 
-- **Runtime**: Node.js >= 20
-- **Language**: TypeScript 5.7+
-- **Framework**: LangChain 1.2+
-- **Build**: tsup
-- **Test**: Vitest
-- **Lint**: ESLint 9 + typescript-eslint
+| Category | Technology |
+|----------|------------|
+| Runtime | Node.js >= 20 |
+| Language | TypeScript 5.7+ |
+| Framework | LangChain 1.2+, LangGraph |
+| Build | tsup (ESM only) |
+| Test | Vitest |
+| Lint | ESLint 9 + typescript-eslint |
+| Package Manager | pnpm 10.27.0 |
 
-## 快速开始
-
-### 安装依赖
+## 安装
 
 ```bash
 pnpm install
 ```
 
-### 配置环境变量
+## 快速开始
 
-复制环境变量模板并填写配置：
+### 1. 配置环境变量
 
 ```bash
 cp .env.example .env
 ```
 
-### 开发模式
+编辑 `.env` 文件，填写你的 API Key：
 
-```bash
-pnpm dev
+```env
+# 至少配置一个 LLM 提供商
+OPENAI_API_KEY=your_openai_api_key
+# 或
+ANTHROPIC_API_KEY=your_anthropic_api_key
+# 或国产模型
+DEEPSEEK_API_KEY=your_deepseek_api_key
 ```
 
-### 构建
+### 2. 创建模型实例
 
-```bash
-pnpm build
+```typescript
+import { createModel, createModelFromPreset, ModelFactory } from 'x-codegen-agent';
+
+// 方式一：直接创建
+const model = await createModel({
+  provider: 'deepseek',
+  model: 'deepseek-chat',
+  apiKey: process.env.DEEPSEEK_API_KEY,
+});
+
+// 方式二：从预设创建（自动读取环境变量）
+const model = await createModelFromPreset('qwen');
+
+// 方式三：缓存模式（相同 ID 复用实例）
+const factory = ModelFactory.getInstance();
+const model = await factory.getOrCreate('my-model', {
+  provider: 'openai',
+  model: 'gpt-4o',
+  apiKey: process.env.OPENAI_API_KEY,
+});
 ```
 
-### 测试
+### 3. 使用 Agent
 
-```bash
-pnpm test
+```typescript
+import { BaseAgent, ToolAgent, createBaseAgent, createToolAgent } from 'x-codegen-agent';
+import { z } from 'zod';
+import { DynamicStructuredTool } from '@langchain/core/tools';
+
+// 基础 Agent
+const agent = createBaseAgent({
+  name: 'my-agent',
+  model,
+  systemPrompt: '你是一个有帮助的助手。',
+});
+
+const result = await agent.execute({ input: '你好！' });
+console.log(result.content);
+
+// 工具调用 Agent
+const weatherTool = new DynamicStructuredTool({
+  name: 'get_weather',
+  description: '获取指定城市的天气',
+  schema: z.object({ city: z.string() }),
+  func: async ({ city }) => `The weather in ${city} is sunny.`,
+});
+
+const toolAgent = createToolAgent({
+  name: 'weather-agent',
+  model,
+  tools: [weatherTool],
+});
+
+const toolResult = await toolAgent.execute({
+  input: '北京今天天气怎么样？',
+});
 ```
 
-### 代码检查
+### 4. 代码生成工作流
 
-```bash
-pnpm lint
-pnpm lint:fix
+```typescript
+import { generateCode, generateCodeStream } from 'x-codegen-agent';
+
+// 一次性执行
+const result = await generateCode({
+  figmaUrl: 'https://www.figma.com/file/xxx/Design',
+  templateRepo: 'https://github.com/example/react-template',
+  outputDir: '/path/to/output',
+  requirements: '实现用户登录页面',
+  maxRetries: 3,
+});
+
+if (result.success) {
+  console.log('生成的文件:', result.files);
+}
+
+// 流式执行（实时进度）
+for await (const event of generateCodeStream({
+  figmaUrl: 'https://www.figma.com/file/xxx/Design',
+  outputDir: '/path/to/output',
+  requirements: '实现用户登录页面',
+})) {
+  console.log(`[${event.step}] ${event.message}`);
+}
 ```
+
+## API 文档
+
+### 模型管理
+
+| 函数 | 说明 |
+|------|------|
+| `createModel(config)` | 创建模型实例 |
+| `createModelFromPreset(preset)` | 从预设创建模型 |
+| `getOrCreateModel(id, config)` | 获取或创建缓存模型 |
+| `ModelFactory.getInstance()` | 获取工厂单例 |
+
+### Agent
+
+| 类/函数 | 说明 |
+|---------|------|
+| `BaseAgent` | 基础 Agent，支持 LCEL chain 构建 |
+| `ToolAgent` | 工具调用 Agent，支持 bindTools |
+| `createBaseAgent(config)` | 创建基础 Agent |
+| `createToolAgent(config)` | 创建工具调用 Agent |
+
+### 工作流
+
+| 函数 | 说明 |
+|------|------|
+| `generateCode(options)` | 一次性执行代码生成 |
+| `generateCodeStream(options)` | 流式执行（返回 AsyncGenerator） |
+| `createCodeGenGraph()` | 创建带检查点的 StateGraph |
+| `createCodeGenGraphWithoutCheckpointer()` | 创建无检查点的 StateGraph |
+
+### 沙箱
+
+| 类/函数 | 说明 |
+|---------|------|
+| `SandboxManager` | 沙箱生命周期管理 |
+| `CommandExecutor` | 命令执行器 |
+| `createSandbox(config)` | 创建沙箱实例 |
+| `createExecutor(config)` | 创建命令执行器 |
+
+### MCP 工具
+
+| 类/函数 | 说明 |
+|---------|------|
+| `FigmaMCPClient` | Figma 设计数据提取 |
+| `KnowledgeBaseMCPClient` | 知识库 PRD 查询 |
 
 ## 项目结构
 
 ```
 x-codegen-agent/
 ├── src/
-│   ├── agents/       # Agent 实现
-│   ├── tools/        # LangChain 工具
-│   ├── types/        # 类型定义
-│   ├── utils/        # 工具函数
-│   └── index.ts      # 入口文件
-├── dist/             # 构建产物
-├── tsconfig.json     # TypeScript 配置
-├── tsup.config.ts    # 构建配置
-├── vitest.config.ts  # 测试配置
-└── eslint.config.js  # ESLint 配置
+│   ├── agents/           # Agent 实现
+│   │   ├── base-agent.ts   # BaseAgent 基础类
+│   │   └── tool-agent.ts   # ToolAgent 工具调用类
+│   ├── config/           # 配置加载
+│   ├── models/           # LLM 模型管理
+│   │   ├── factory.ts      # ModelFactory 单例
+│   │   ├── providers.ts    # 提供商预设
+│   │   └── helpers.ts      # 工具函数
+│   ├── sandbox/          # 沙箱管理
+│   │   ├── manager.ts      # 沙箱生命周期
+│   │   └── executor.ts     # 命令执行器
+│   ├── tools/            # LangChain 工具
+│   │   ├── codegen/        # 代码生成工具
+│   │   └── mcp/            # MCP 集成
+│   ├── types/            # TypeScript 类型定义
+│   ├── workflow/         # LangGraph 工作流
+│   │   ├── graph.ts        # StateGraph 构建
+│   │   ├── nodes/          # 工作流节点
+│   │   └── index.ts        # 对外 API
+│   └── index.ts          # 入口文件
+├── dist/                 # 构建产物
+├── task.json             # 任务追踪
+├── progress.txt          # 进度日志
+└── init.sh               # 环境初始化脚本
 ```
 
-## 依赖版本
+## 开发命令
 
-| Package | Version |
-|---------|---------|
-| langchain | ^1.2.23 |
-| @langchain/core | ^1.0.0 |
-| @langchain/openai | ^1.2.7 |
-| @langchain/anthropic | ^1.0.0 |
-| zod | ^3.24.0 |
+```bash
+pnpm install          # 安装依赖
+pnpm dev              # 开发模式 (tsx 运行)
+pnpm build            # 生产构建 (tsup)
+pnpm test             # 运行测试 (vitest)
+pnpm test -- --run    # 单次测试运行
+pnpm test:coverage    # 测试覆盖率
+pnpm lint             # ESLint 检查
+pnpm lint:fix         # 自动修复 lint 问题
+pnpm typecheck        # TypeScript 类型检查
+```
+
+## 支持的模型提供商
+
+| Provider | 环境变量 | 默认模型 |
+|----------|---------|---------|
+| OpenAI | `OPENAI_API_KEY` | gpt-4o |
+| Anthropic | `ANTHROPIC_API_KEY` | claude-sonnet-4-20250514 |
+| DeepSeek | `DEEPSEEK_API_KEY` | deepseek-chat |
+| 智谱 GLM | `ZHIPU_API_KEY` | glm-4-plus |
+| 通义千问 | `DASHSCOPE_API_KEY` | qwen-plus |
+| 月之暗面 | `MOONSHOT_API_KEY` | moonshot-v1-8k |
+| 百川 | `BAICHUAN_API_KEY` | Baichuan4 |
+| MiniMax | `MINIMAX_API_KEY` | abab6.5s-chat |
+
+## 工作流节点说明
+
+| 节点 | 职责 |
+|------|------|
+| `init` | 创建沙箱、克隆模板、安装依赖 |
+| `template` | Figma MCP 获取设计 → 生成静态代码 |
+| `completion` | 知识库 MCP 获取 PRD → LLM 补全逻辑 |
+| `validate` | pnpm check → 验证通过则复制到宿主 |
+
+## 示例
+
+### 自定义 Agent 配置
+
+```typescript
+import { ToolAgent } from 'x-codegen-agent';
+
+const agent = new ToolAgent({
+  name: 'code-reviewer',
+  description: '代码审查 Agent',
+  model,
+  systemPrompt: `你是一个专业的代码审查专家。
+请从以下方面进行审查：
+1. 代码质量
+2. 安全性
+3. 性能
+4. 可维护性`,
+  maxIterations: 5,
+  temperature: 0.3,
+  timeout: 60000,
+  tools: [lintTool, testTool],
+});
+
+// 流式执行
+for await (const event of agent.stream({ input: '审查这段代码...' })) {
+  if (event.type === 'token') {
+    process.stdout.write(event.content);
+  }
+}
+```
+
+### 沙箱操作
+
+```typescript
+import { createSandbox } from 'x-codegen-agent';
+
+const sandbox = createSandbox({
+  rootDir: '/tmp/my-sandbox',
+  env: { NODE_ENV: 'development' },
+});
+
+await sandbox.initialize();
+
+// 文件操作
+await sandbox.writeFile('src/index.ts', 'console.log("Hello");');
+const content = await sandbox.readFile('src/index.ts');
+
+// 命令执行
+const executor = sandbox.getExecutor();
+await executor.pnpm(['install']);
+await executor.pnpm(['build']);
+
+// 清理
+await sandbox.cleanup();
+```
 
 ## License
 

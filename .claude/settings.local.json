@@ -22,7 +22,10 @@
       "Bash(ssh:*)",
       "Bash(git add:*)",
       "mcp__docs-langchain__SearchDocsByLangChain",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(pnpm view:*)",
+      "Bash(grep:*)",
+      "Bash(pnpm lint)"
     ]
   },
   "enableAllProjectMcpServers": true,
