@@ -90,3 +90,28 @@
 - 所有 11 个功能已实现完成
 - 下一步：发布准备
 
+## [2026-02-13 16:09] SDK 转 CLI 架构转型
+- 完成了 SDK 到 CLI 工具的架构转型
+  - 删除 examples/ 目录
+  - 新增 src/cli/ 模块
+    - cli/index.ts - CLI 入口
+    - cli/commands/generate.ts - generate 命令实现
+    - cli/commands/index.ts - 命令导出
+    - cli/utils/logger.ts - 彩色日志工具
+    - cli/utils/progress.ts - Spinner 进度指示器
+- 修改了配置文件
+  - package.json 添加 bin 入口 (x-codegen)
+  - tsup.config.ts 添加 CLI 构建配置
+  - tsconfig.json 添加 @workflow/* 路径别名
+- 添加了 CLI 依赖
+  - commander@14 - CLI 框架
+  - chalk@5 - 终端彩色输出
+  - ora@9 - Spinner 进度指示器
+- 更新了 README.md 文档
+  - 添加 CLI 安装和使用说明
+  - 更新项目结构
+  - 更新 API 文档
+- 更新 task.json 添加 feat-012
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (95 tests)
+- 下一步：发布到 npm
+

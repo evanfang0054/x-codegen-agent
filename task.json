@@ -1,6 +1,6 @@
 {
   "project": "x-codegen-agent",
-  "description": "基于 LangChain.js 的页面代码生成 Agent SDK",
+  "description": "基于 LangChain.js 的前端代码生成 CLI 工具",
   "features": [
     {
       "id": "feat-001",
@@ -157,11 +157,26 @@
       ],
       "passes": true,
       "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-012",
+      "category": "cli",
+      "description": "CLI 工具 - 从 SDK 转型为命令行工具",
+      "priority": "high",
+      "steps": [
+        "删除 examples/ 目录",
+        "创建 src/cli/ 模块结构",
+        "实现 generate 命令",
+        "实现日志和进度工具",
+        "配置 bin 入口和构建"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
     }
   ],
   "metadata": {
     "createdAt": "2026-02-13",
     "lastUpdated": "2026-02-13",
-    "version": "0.2.0"
+    "version": "1.0.0"
   }
 }

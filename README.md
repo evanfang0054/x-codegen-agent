@@ -1,9 +1,10 @@
 # X-CodeGen-Agent
 
-基于 LangChain.js 的前端代码生成 Agent SDK，支持多种 LLM 提供商和完整的工作流编排。
+基于 LangChain.js 的前端代码生成 CLI 工具，支持多种 LLM 提供商和完整的工作流编排。
 
 ## 特性
 
+- **CLI 工具**: 命令行直接运行，无需编写代码
 - **多模型支持**: OpenAI、Anthropic、DeepSeek、智谱 GLM、通义千问、月之暗面、百川、MiniMax
 - **LangGraph 工作流**: 多步骤代码生成工作流，支持检查点持久化和恢复
 - **MCP 集成**: Figma 设计数据提取、知识库 PRD 查询
@@ -17,6 +18,7 @@
 | Runtime | Node.js >= 20 |
 | Language | TypeScript 5.7+ |
 | Framework | LangChain 1.2+, LangGraph |
+| CLI | commander, chalk, ora |
 | Build | tsup (ESM only) |
 | Test | Vitest |
 | Lint | ESLint 9 + typescript-eslint |
@@ -24,8 +26,24 @@
 
 ## 安装
 
+### 全局安装（推荐）
+
 ```bash
+# 使用 pnpm
+pnpm install -g x-codegen-agent
+
+# 或使用 npm
+npm install -g x-codegen-agent
+```
+
+### 从源码安装
+
+```bash
+git clone https://github.com/evanfang/x-codegen-agent.git
+cd x-codegen-agent
 pnpm install
+pnpm build
+pnpm link --global
 ```
 
 ## 快速开始
@@ -47,7 +65,46 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 DEEPSEEK_API_KEY=your_deepseek_api_key
 ```
 
-### 2. 创建模型实例
+### 2. 使用 CLI 生成代码
+
+```bash
+# 基础用法
+x-codegen generate \
+  --figma https://www.figma.com/file/xxx/Design \
+  --output ./output
+
+# 完整参数
+x-codegen generate \
+  --figma https://www.figma.com/file/xxx/Design \
+  --output ./output \
+  --template https://github.com/example/react-template \
+  --requirements "实现用户登录页面" \
+  --provider deepseek \
+  --verbose
+
+# 查看帮助
+x-codegen --help
+x-codegen generate --help
+```
+
+### CLI 命令选项
+
+| 选项 | 简写 | 说明 | 必需 |
+|------|------|------|------|
+| `--figma <url>` | `-f` | Figma 设计链接 | 是 |
+| `--output <dir>` | `-o` | 输出目录 | 是 |
+| `--template <repo>` | `-t` | 模板仓库 URL | 否 |
+| `--requirements <text>` | `-r` | 需求描述 | 否 |
+| `--max-retries <n>` | | 最大重试次数（默认 3） | 否 |
+| `--provider <name>` | | LLM 提供商 | 否 |
+| `--model <name>` | | 模型名称 | 否 |
+| `--verbose` | `-v` | 详细日志 | 否 |
+
+## SDK 用法
+
+你也可以作为 SDK 在代码中使用：
+
+### 创建模型实例
 
 ```typescript
 import { createModel, createModelFromPreset, ModelFactory } from 'x-codegen-agent';
@@ -185,6 +242,14 @@ for await (const event of generateCodeStream({
 ```
 x-codegen-agent/
 ├── src/
+│   ├── cli/              # CLI 模块
+│   │   ├── index.ts        # CLI 入口
+│   │   ├── commands/       # 命令实现
+│   │   │   ├── generate.ts # generate 命令
+│   │   │   └── index.ts    # 命令导出
+│   │   └── utils/          # CLI 工具
+│   │       ├── logger.ts   # 彩色日志
+│   │       └── progress.ts # Spinner 进度
 │   ├── agents/           # Agent 实现
 │   │   ├── base-agent.ts   # BaseAgent 基础类
 │   │   └── tool-agent.ts   # ToolAgent 工具调用类
@@ -204,7 +269,7 @@ x-codegen-agent/
 │   │   ├── graph.ts        # StateGraph 构建
 │   │   ├── nodes/          # 工作流节点
 │   │   └── index.ts        # 对外 API
-│   └── index.ts          # 入口文件
+│   └── index.ts          # SDK 入口文件
 ├── dist/                 # 构建产物
 ├── task.json             # 任务追踪
 ├── progress.txt          # 进度日志

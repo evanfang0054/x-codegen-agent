@@ -28,7 +28,8 @@
       "@types/*": ["src/types/*"],
       "@agents/*": ["src/agents/*"],
       "@tools/*": ["src/tools/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@workflow/*": ["src/workflow/*"]
     }
   },
   "include": ["src/**/*"],
