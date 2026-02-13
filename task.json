@@ -218,6 +218,22 @@
       "passes": true,
       "completedAt": "2026-02-13",
       "notes": "总计 165 个测试通过：config(24) + sandbox(29) + models(27) + tools(24) + agents(20) + workflow(15) + cli(26)"
+    },
+    {
+      "id": "feat-015",
+      "category": "testing",
+      "description": "CLI 命令测试完善 - generate 命令集成测试",
+      "priority": "medium",
+      "steps": [
+        "添加 generate 命令参数验证测试",
+        "添加 generate 命令成功执行测试",
+        "添加 generate 命令错误处理测试",
+        "添加 CLI 入口配置测试"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/cli",
+      "notes": "CLI 测试从 26 个增加到 39 个，总计 178 个测试通过"
     }
   ],
   "metadata": {

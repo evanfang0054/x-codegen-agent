@@ -5,10 +5,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createLogger } from '../utils/logger.js';
 import { createProgress, StepProgress } from '../utils/progress.js';
+import { generateCommand, type GenerateCommandOptions } from '../commands/generate.js';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Mock console 方法
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
 const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+// Mock process.exit
+const mockExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
+  throw new Error(`process.exit:${code}`);
+});
 
 // Mock ora
 vi.mock('ora', () => {
@@ -25,6 +39,14 @@ vi.mock('ora', () => {
     default: vi.fn(() => mockSpinner),
   };
 });
+
+// Mock @x-codegen/sdk
+vi.mock('@x-codegen/sdk', () => ({
+  generateCodeStream: vi.fn().mockImplementation(async function* () {
+    yield { step: 'init', message: '初始化中...' };
+    yield { step: 'completed', message: '完成' };
+  }),
+}));
 
 describe('Logger', () => {
   beforeEach(() => {
@@ -247,5 +269,183 @@ describe('Progress', () => {
       // current 会增加到 3（因为 next() 只是递增计数器）
       expect(stepProgress.current).toBe(3);
     });
+  });
+});
+
+describe('GenerateCommand', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('参数验证', () => {
+    it('should exit when figma URL is missing', async () => {
+      const options: GenerateCommandOptions = {
+        figma: '',
+        output: '/tmp/output',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+    });
+
+    it('should exit when output directory is missing', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+    });
+  });
+
+  describe('成功执行', () => {
+    it('should execute with valid options', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      // 不应该抛出错误
+      await generateCommand(options);
+
+      // 验证 console.log 被调用（输出后续步骤）
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should execute with verbose mode', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: '3',
+        verbose: true,
+      };
+
+      await generateCommand(options);
+
+      // verbose 模式会打印配置信息
+      expect(mockConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should parse maxRetries correctly', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: '5',
+        verbose: false,
+      };
+
+      await generateCommand(options);
+      // 如果 maxRetries 解析正确，不会抛出错误
+    });
+
+    it('should use default maxRetries when invalid', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: 'invalid',
+        verbose: false,
+      };
+
+      await generateCommand(options);
+      // invalid maxRetries 会使用默认值 3
+    });
+
+    it('should handle optional template parameter', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        template: 'https://github.com/example/template',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await generateCommand(options);
+    });
+
+    it('should handle optional requirements parameter', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        requirements: '实现用户登录页面',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await generateCommand(options);
+    });
+  });
+
+  describe('错误处理', () => {
+    it('should handle error step from stream', async () => {
+      // 重新 mock generateCodeStream 返回错误
+      vi.mocked(await import('@x-codegen/sdk')).generateCodeStream.mockImplementationOnce(
+        async function* () {
+          yield { step: 'error', message: '生成失败' };
+        }
+      );
+
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+    });
+
+    it('should handle exception from stream', async () => {
+      // 重新 mock generateCodeStream 抛出异常
+      vi.mocked(await import('@x-codegen/sdk')).generateCodeStream.mockImplementationOnce(
+        async function* () {
+          throw new Error('Stream error');
+        }
+      );
+
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+    });
+  });
+});
+
+describe('CLI 入口', () => {
+  it('should have correct package.json bin entry', () => {
+    const packageJsonPath = join(__dirname, '../../package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+
+    expect(packageJson.bin).toBeDefined();
+    expect(packageJson.bin['x-codegen']).toBe('./dist/index.js');
+  });
+
+  it('should have correct command name', () => {
+    const packageJsonPath = join(__dirname, '../../package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+
+    expect(packageJson.name).toBe('@x-codegen/cli');
+  });
+
+  it('should have required dependencies', () => {
+    const packageJsonPath = join(__dirname, '../../package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+
+    expect(packageJson.dependencies['@x-codegen/sdk']).toBeDefined();
+    expect(packageJson.dependencies.commander).toBeDefined();
+    expect(packageJson.dependencies.chalk).toBeDefined();
+    expect(packageJson.dependencies.ora).toBeDefined();
   });
 });

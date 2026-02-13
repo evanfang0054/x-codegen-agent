@@ -173,5 +173,15 @@
   - @x-codegen/cli - 26 个测试 ✅
 - 总计 165 个测试通过
 - 所有检查通过：typecheck ✓, lint ✓, test ✓ (165 tests)
+
+## [2026-02-13 22:12] CLI 命令测试完善
+- 为 @x-codegen/cli 添加了 generate 命令测试
+  - 参数验证测试（缺少 figma URL、缺少 output 目录）
+  - 成功执行测试（正常选项、verbose 模式、可选参数）
+  - 错误处理测试（error step、stream 异常）
+  - CLI 入口测试（package.json bin 配置、依赖检查）
+- CLI 测试从 26 个增加到 39 个
+- 总计 178 个测试通过
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (178 tests)
 - 下一步：发布各包到 npm
 
