@@ -40,3 +40,54 @@ export type {
   CachedModelEntry,
   ModelInstance,
 } from './models.js';
+
+// 工作流相关类型
+export type {
+  WorkflowStep,
+  FigmaDesignData,
+  FigmaComponent,
+  PRDAnalysisResult,
+  PRDFeature,
+  PRDDataModel,
+  PRDAPIRequirement,
+  CodeGenOptions,
+  CodeGenResult as WorkflowCodeGenResult,
+  StreamEvent,
+  CodeGenState,
+} from './workflow.js';
+
+export { CodeGenStateAnnotation } from './workflow.js';
+
+// 沙箱相关类型
+export type {
+  SandboxConfig,
+  CommandResult,
+  GitCloneOptions,
+  GitCloneResult,
+  InstallDepsOptions,
+  InstallDepsResult,
+  FileOperationType,
+  FileOperationOptions,
+  SandboxStatus,
+  ProjectValidateOptions,
+  ProjectValidateResult,
+} from './sandbox.js';
+
+// MCP 相关类型
+export type {
+  MCPTransportType,
+  MCPServerConfigBase,
+  MCPServerStdioConfig,
+  MCPServerHttpConfig,
+  MCPServerWebSocketConfig,
+  MCPServerConfig,
+  FigmaMCPConfig,
+  KnowledgeBaseMCPConfig,
+  MCPToolDefinition,
+  MCPToolResult,
+  FigmaExtractOptions,
+  KnowledgeBaseQueryOptions,
+  KnowledgeBaseQueryResult,
+  KnowledgeBaseChunk,
+  MultiMCPClientConfig,
+} from './mcp.js';

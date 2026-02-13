@@ -20,7 +20,9 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(ssh:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__docs-langchain__SearchDocsByLangChain",
+      "Bash(chmod:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

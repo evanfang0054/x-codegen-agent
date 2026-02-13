@@ -1,7 +1,20 @@
 /**
- * Tools 模块
- * 后续实现具体的工具逻辑
+ * Tools 模块入口
  */
 
-// 占位导出
-export const placeholder = true;
+// MCP 工具
+export {
+  FigmaMCPClient,
+  createFigmaMCPClient,
+  KnowledgeBaseMCPClient,
+  createKnowledgeBaseMCPClient,
+} from './mcp/index.js';
+
+// 代码生成工具
+export {
+  ComponentGenerator,
+  createComponentGenerator,
+  type ComponentGenerateOptions,
+  type GeneratedComponent,
+  type ComponentGenerateResult,
+} from './codegen/index.js';

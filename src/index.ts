@@ -47,6 +47,44 @@ export {
   getModelConfig,
 } from './config/index.js';
 
-// 后续导出 Agent、Tools 等
-// export { CodeGenAgent } from './agents/index.js';
-// export * from './tools/index.js';
+// 工具模块导出
+export {
+  // MCP 工具
+  FigmaMCPClient,
+  createFigmaMCPClient,
+  KnowledgeBaseMCPClient,
+  createKnowledgeBaseMCPClient,
+  // 代码生成工具
+  ComponentGenerator,
+  createComponentGenerator,
+  type ComponentGenerateOptions,
+  type GeneratedComponent,
+  type ComponentGenerateResult,
+} from './tools/index.js';
+
+// 沙箱模块导出
+export {
+  SandboxManager,
+  createSandbox,
+  CommandExecutor,
+  createExecutor,
+} from './sandbox/index.js';
+
+// 工作流模块导出
+export {
+  // 主要 API
+  CodeGenerator,
+  createCodeGenerator,
+  generateCode,
+  generateCodeStream,
+  // 工作流构建
+  createCodeGenGraph,
+  createCodeGenGraphWithoutCheckpointer,
+  // 节点函数（高级用法）
+  initNode,
+  templateNode,
+  completionNode,
+  validateNode,
+  // 类型
+  type CodeGenGraph,
+} from './workflow/index.js';

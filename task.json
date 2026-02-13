@@ -1,0 +1,152 @@
+{
+  "project": "x-codegen-agent",
+  "description": "基于 LangChain.js 的页面代码生成 Agent SDK",
+  "features": [
+    {
+      "id": "feat-001",
+      "category": "core",
+      "description": "LLM 模型管理 - 支持 OpenAI/Anthropic/DeepSeek/智谱/通义千问等提供商",
+      "priority": "high",
+      "steps": [
+        "实现 ModelFactory 单例模式",
+        "实现提供商预设配置",
+        "实现配置验证和 ID 生成",
+        "支持缓存模式复用实例"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-002",
+      "category": "core",
+      "description": "配置加载系统 - 支持 JSON 文件和环境变量",
+      "priority": "high",
+      "steps": [
+        "实现 JSON 配置文件加载",
+        "实现环境变量读取",
+        "实现配置合并和验证"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-003",
+      "category": "core",
+      "description": "TypeScript 类型定义 - ModelConfig, ProviderPreset, ModelInstance 等",
+      "priority": "high",
+      "steps": [
+        "定义 ModelConfig 接口",
+        "定义 ProviderPreset 接口",
+        "定义 ModelInstance 类型",
+        "导出所有类型供外部使用"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-004",
+      "category": "workflow",
+      "description": "LangGraph 工作流 - 多步骤代码生成工作流",
+      "priority": "high",
+      "steps": [
+        "定义 CodeGenStateAnnotation 状态",
+        "实现 init 节点（沙箱初始化、克隆模板、安装依赖）",
+        "实现 template 节点（Figma MCP → 静态代码）",
+        "实现 completion 节点（知识库 MCP → 业务补全）",
+        "实现 validate 节点（验证 → 输出到宿主）",
+        "构建 StateGraph 并编译"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-005",
+      "category": "sandbox",
+      "description": "沙箱管理系统 - 隔离环境执行代码",
+      "priority": "high",
+      "steps": [
+        "实现 SandboxManager 生命周期管理",
+        "实现 CommandExecutor 命令执行",
+        "支持 Git 克隆和依赖安装",
+        "支持文件读写和目录操作"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-006",
+      "category": "mcp",
+      "description": "MCP 集成 - Figma MCP 和知识库 MCP",
+      "priority": "high",
+      "steps": [
+        "实现 FigmaMCPClient 客户端",
+        "实现 KnowledgeBaseMCPClient 客户端",
+        "使用 @langchain/mcp-adapters 连接 MCP 服务",
+        "支持设计数据提取和 PRD 查询"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-007",
+      "category": "codegen",
+      "description": "组件代码生成器 - React + Tailwind 组件生成",
+      "priority": "high",
+      "steps": [
+        "实现 ComponentGenerator 类",
+        "支持静态模板生成（从 Figma 设计）",
+        "支持业务逻辑补全（从 PRD 分析）",
+        "使用 LCEL pipe() 组合 prompt + model + parser"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-008",
+      "category": "api",
+      "description": "对外 API - generateCode 和 generateCodeStream",
+      "priority": "high",
+      "steps": [
+        "实现 CodeGenerator 类",
+        "实现 generateCode 一次性执行",
+        "实现 generateCodeStream 流式执行",
+        "支持检查点持久化和恢复"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13"
+    },
+    {
+      "id": "feat-009",
+      "category": "agent",
+      "description": "Agent 实现 - 使用 LCEL 构建 Agent 链",
+      "priority": "medium",
+      "steps": [
+        "设计 Agent 架构",
+        "实现基础 Agent 类",
+        "支持 prompt 模板和模型组合",
+        "支持工具调用"
+      ],
+      "passes": false,
+      "notes": "待开发 - 可基于 workflow 模块扩展"
+    },
+    {
+      "id": "feat-010",
+      "category": "testing",
+      "description": "单元测试覆盖 - workflow/sandbox/mcp 模块测试",
+      "priority": "medium",
+      "steps": [
+        "为 workflow 模块添加测试",
+        "为 sandbox 模块添加测试",
+        "为 mcp 模块添加测试",
+        "为 codegen 模块添加测试"
+      ],
+      "passes": false,
+      "notes": "当前只有 models 模块有测试"
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-02-13",
+    "lastUpdated": "2026-02-13",
+    "version": "0.2.0"
+  }
+}
