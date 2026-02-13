@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__web-search-prime__webSearchPrime",
+      "WebSearch",
+      "Bash(pnpm install)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm build)",
+      "mcp__context7__query-docs",
+      "mcp__retrieve-knowledgeBase-mcp__SearchDocsByLangChain",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm test:*)",
+      "Bash(tree:*)",
+      "Bash(git -C /Users/arwen/Desktop/Arwen/evanfang/x-codegen-agent status --short)",
+      "Bash(pnpm check:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(ssh:*)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "retrieve-knowledgeBase-mcp"
+  ]
+}
