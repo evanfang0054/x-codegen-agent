@@ -25,7 +25,14 @@
       "Bash(chmod:*)",
       "Bash(pnpm view:*)",
       "Bash(grep:*)",
-      "Bash(pnpm lint)"
+      "Bash(pnpm lint)",
+      "Bash(pnpm search:*)",
+      "Bash(node:*)",
+      "Bash(for pkg in packages/*/ apps/*/)",
+      "Bash(do if:*)",
+      "Bash(then cat \"$pkgtsconfig.json\")",
+      "Bash(npx vitest run)",
+      "Bash(ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

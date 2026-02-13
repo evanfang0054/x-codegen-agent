@@ -1,6 +1,6 @@
 {
   "project": "x-codegen-agent",
-  "description": "基于 LangChain.js 的前端代码生成 CLI 工具",
+  "description": "基于 LangChain.js 的前端代码生成 CLI 工具（Monorepo 架构）",
   "features": [
     {
       "id": "feat-001",
@@ -14,7 +14,8 @@
         "支持缓存模式复用实例"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/models"
     },
     {
       "id": "feat-002",
@@ -27,7 +28,8 @@
         "实现配置合并和验证"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/config"
     },
     {
       "id": "feat-003",
@@ -41,7 +43,8 @@
         "导出所有类型供外部使用"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/types"
     },
     {
       "id": "feat-004",
@@ -57,7 +60,8 @@
         "构建 StateGraph 并编译"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/workflow"
     },
     {
       "id": "feat-005",
@@ -71,7 +75,8 @@
         "支持文件读写和目录操作"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/sandbox"
     },
     {
       "id": "feat-006",
@@ -85,7 +90,8 @@
         "支持设计数据提取和 PRD 查询"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/tools"
     },
     {
       "id": "feat-007",
@@ -99,7 +105,8 @@
         "使用 LCEL pipe() 组合 prompt + model + parser"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/tools"
     },
     {
       "id": "feat-008",
@@ -113,7 +120,8 @@
         "支持检查点持久化和恢复"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/workflow"
     },
     {
       "id": "feat-009",
@@ -127,7 +135,8 @@
         "支持工具调用"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/agents"
     },
     {
       "id": "feat-010",
@@ -141,7 +150,8 @@
         "为 codegen 模块添加测试"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "notes": "测试文件位于各包的 src/__tests__/ 目录"
     },
     {
       "id": "feat-011",
@@ -171,12 +181,33 @@
         "配置 bin 入口和构建"
       ],
       "passes": true,
-      "completedAt": "2026-02-13"
+      "completedAt": "2026-02-13",
+      "package": "@x-codegen/cli"
+    },
+    {
+      "id": "feat-013",
+      "category": "architecture",
+      "description": "Monorepo 架构重构 - pnpm workspaces + Turborepo",
+      "priority": "high",
+      "steps": [
+        "创建 pnpm-workspace.yaml 配置",
+        "创建 turbo.json 构建编排",
+        "创建 tools/tsconfig.base.json 共享配置",
+        "迁移代码到 packages/ 目录（8个库包）",
+        "迁移代码到 apps/ 目录（1个CLI应用）",
+        "更新所有 import 路径为包引用",
+        "迁移测试文件到 src/__tests__/ 目录",
+        "更新所有配置文件和文档"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-13",
+      "notes": "包结构：types, config, sandbox, models, tools, agents, workflow, sdk, cli"
     }
   ],
   "metadata": {
     "createdAt": "2026-02-13",
     "lastUpdated": "2026-02-13",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "architecture": "monorepo"
   }
 }

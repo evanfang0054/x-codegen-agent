@@ -4,94 +4,95 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-X-CodeGen-Agent 是基于 LangChain.js 的页面代码生成 Agent SDK，支持多种 LLM 提供商（OpenAI、Anthropic、DeepSeek、智谱、通义千问等国产模型）。
+X-CodeGen-Agent 是基于 LangChain.js 的前端代码生成工具集，采用 pnpm workspaces + Turborepo 的 Monorepo 架构，支持多种 LLM 提供商（OpenAI、Anthropic、DeepSeek、智谱、通义千问等国产模型）。
 
 ## Commands
 
 ```bash
 pnpm install          # 安装依赖
-pnpm dev              # 开发模式 (tsx 运行)
-pnpm build            # 生产构建 (tsup)
-pnpm test             # 运行测试 (vitest)
-pnpm test -- --run    # 单次测试运行
-pnpm test:coverage    # 测试覆盖率
+pnpm build            # 构建所有包 (Turborepo)
+pnpm dev              # 开发模式
+pnpm test             # 运行测试
 pnpm lint             # ESLint 检查
-pnpm lint:fix         # 自动修复 lint 问题
 pnpm typecheck        # TypeScript 类型检查
-pnpm check            # 项目检查（建议添加: pnpm typecheck && pnpm lint && pnpm test -- --run）
+pnpm check            # 完整检查（typecheck + lint + test）
+pnpm clean            # 清理构建产物
+
+# 发布管理
+pnpm changeset        # 创建变更记录
+pnpm version          # 版本升级
+pnpm release          # 发布到 npm
 ```
 
 ## Architecture
 
 ```
-src/
-├── models/           # LLM 模型管理（核心模块）
-│   ├── factory.ts    # ModelFactory 单例，创建/缓存模型实例
-│   ├── providers.ts  # 提供商预设（OpenAI/Anthropic/DeepSeek/智谱/通义千问等）
-│   └── helpers.ts    # 配置验证、ID生成、哈希计算
-├── config/           # 配置加载
-│   └── loader.ts     # 支持 JSON 文件 + 环境变量
-├── types/            # TypeScript 类型定义
-│   ├── models.ts     # ModelConfig, ProviderPreset, ModelInstance 等
-│   ├── workflow.ts   # 工作流状态类型 (CodeGenState, CodeGenOptions 等)
-│   ├── sandbox.ts    # 沙箱类型 (SandboxConfig, CommandResult 等)
-│   └── mcp.ts        # MCP 配置类型 (FigmaMCPConfig, KnowledgeBaseMCPConfig 等)
-├── workflow/         # LangGraph 工作流（核心模块）
-│   ├── graph.ts      # StateGraph 构建和编译
-│   ├── index.ts      # 对外 API (generateCode, generateCodeStream)
-│   └── nodes/        # 工作流节点函数
-│       ├── init.ts       # 沙箱初始化、克隆模板、安装依赖
-│       ├── template.ts   # Figma MCP 获取设计 → 生成静态代码
-│       ├── completion.ts # 知识库 MCP 获取 PRD → 补全业务逻辑
-│       └── validate.ts   # pnpm check → 验证通过则输出到宿主
-├── sandbox/          # 沙箱管理
-│   ├── manager.ts    # 沙箱生命周期管理
-│   └── executor.ts   # 命令执行器
-├── tools/            # LangChain 工具
-│   ├── mcp/          # MCP 集成
-│   │   ├── figma-client.ts      # Figma MCP 客户端
-│   │   └── knowledge-base.ts    # 知识库 MCP 客户端
-│   └── codegen/      # 代码生成工具
-│       └── generate-component.ts # React + Tailwind 组件生成器
-├── agents/           # Agent 实现（待开发）
-└── index.ts          # 统一导出入口
+x-codegen-agent/
+├── packages/           # 库包（可复用的核心能力）
+│   ├── types/          # 共享类型定义 @x-codegen/types
+│   ├── config/         # 配置加载 @x-codegen/config
+│   ├── sandbox/        # 沙箱管理 @x-codegen/sandbox
+│   ├── models/         # LLM 模型管理 @x-codegen/models
+│   ├── tools/          # LangChain 工具 @x-codegen/tools
+│   ├── agents/         # LCEL Agent @x-codegen/agents
+│   ├── workflow/       # LangGraph 工作流 @x-codegen/workflow
+│   └── sdk/            # 核心 SDK 聚合 @x-codegen/sdk
+├── apps/               # 应用层（各种前端入口）
+│   └── cli/            # CLI 应用 @x-codegen/cli
+└── tools/              # 开发工具配置
+    ├── tsconfig.base.json
+    └── ...
 ```
 
-## Path Aliases (tsconfig.json)
+### 包依赖关系
 
-项目配置了路径别名，方便模块引用：
+```
+types ──┬── config
+        ├── sandbox
+        └── models ──→ tools ──→ agents ──→ workflow ──→ sdk ──→ cli
+```
 
-| 别名 | 映射路径 |
-|------|---------|
-| `@/*` | `src/*` |
-| `@models/*` | `src/models/*` |
-| `@config/*` | `src/config/*` |
-| `@types/*` | `src/types/*` |
-| `@agents/*` | `src/agents/*` |
-| `@tools/*` | `src/tools/*` |
-| `@utils/*` | `src/utils/*` |
+### 各包职责
 
-**引用规范**: 项目内部引用必须使用路径别名，保持一致性。
+| 包名 | 职责 |
+|------|------|
+| `@x-codegen/types` | 共享类型定义（ModelConfig, WorkflowState, SandboxConfig 等） |
+| `@x-codegen/config` | 配置加载（JSON 文件 + 环境变量） |
+| `@x-codegen/sandbox` | 沙箱生命周期管理、命令执行 |
+| `@x-codegen/models` | ModelFactory 单例、提供商预设、配置验证 |
+| `@x-codegen/tools` | MCP 客户端（Figma、知识库）、组件生成器 |
+| `@x-codegen/agents` | BaseAgent、ToolAgent（LCEL chain 构建） |
+| `@x-codegen/workflow` | LangGraph StateGraph、工作流节点 |
+| `@x-codegen/sdk` | 聚合导出所有模块 |
+| `@x-codegen/cli` | 命令行工具入口 |
+
+## Import 规范
+
+Monorepo 架构下，使用包引用而非路径别名：
 
 ```typescript
-// ✅ 推荐：使用路径别名
-import { ModelFactory } from '@models/factory.js';
-import type { ModelConfig } from '@types/models.js';
-import { loadConfig } from '@config/loader.js';
+// ✅ 推荐：使用包引用
+import { ModelFactory } from '@x-codegen/models';
+import type { ModelConfig } from '@x-codegen/types';
+import { generateCode } from '@x-codegen/workflow';
 
-// ❌ 避免：使用相对路径
-import { ModelFactory } from '../models/factory.js';
+// ❌ 避免：使用相对路径跨包引用
+import { ModelFactory } from '../models/index.js';
 ```
 
 ## Key Patterns
 
-### 模型创建模式（外部使用）
+### 模型创建模式
+
 ```typescript
-// 外部包引用方式
-import { createModel, ModelFactory } from 'x-codegen-agent';
+import { createModel, ModelFactory } from '@x-codegen/models';
 
 // 直接创建
-const model = await createModel({ provider: 'deepseek', model: 'deepseek-chat', apiKey: '...' });
+const model = await createModel({
+  provider: 'deepseek',
+  model: 'deepseek-chat',
+  apiKey: '...'
+});
 
 // 从预设创建（自动读取环境变量）
 const model = await ModelFactory.getInstance().createFromPreset('qwen');
@@ -100,25 +101,15 @@ const model = await ModelFactory.getInstance().createFromPreset('qwen');
 const model = await ModelFactory.getInstance().getOrCreate('my-model', config);
 ```
 
-### 项目内部引用模式
-```typescript
-// 内部模块间引用使用路径别名
-import { ModelFactory } from '@models/index.js';
-import type { ModelConfig } from '@types/index.js';
-import { validateModelConfig } from '@models/helpers.js';
-```
+### 代码生成工作流
 
-### 国产模型支持
-通过 OpenAI 兼容 API 支持：DeepSeek、智谱 GLM、通义千问、月之暗面、百川、MiniMax。预设配置在 `src/models/providers.ts`，环境变量名见 `.env.example`。
-
-### 代码生成工作流使用
 ```typescript
-import { generateCode, generateCodeStream } from 'x-codegen-agent';
+import { generateCode, generateCodeStream } from '@x-codegen/sdk';
 
 // 一次性执行
 const result = await generateCode({
   figmaUrl: 'https://figma.com/file/xxx',
-  templateRepo: 'https://github.com/example/react-template', // 可选
+  templateRepo: 'https://github.com/example/react-template',
   outputDir: '/path/to/output',
   requirements: '实现用户登录页面',
   maxRetries: 3,
@@ -134,6 +125,18 @@ for await (const event of generateCodeStream(options)) {
 // 2. template  - Figma MCP 获取设计 → LLM 生成静态代码
 // 3. completion - 知识库 MCP 获取 PRD → LLM 补全业务逻辑
 // 4. validate  - pnpm check → 验证通过则输出到宿主环境
+```
+
+### 测试文件位置
+
+测试文件统一放在各包的 `src/__tests__/` 目录中：
+
+```
+packages/models/src/__tests__/models.test.ts
+packages/sandbox/src/__tests__/sandbox.test.ts
+packages/tools/src/__tests__/mcp.test.ts
+packages/tools/src/__tests__/codegen.test.ts
+packages/workflow/src/__tests__/workflow.test.ts
 ```
 
 ## LCEL (LangChain Expression Language) 编码规范
@@ -332,8 +335,7 @@ const chain = prompt.pipe(llmWithTools);
 - LangChain 1.2+ (`langchain`, `@langchain/core`, `@langchain/openai`, `@langchain/anthropic`)
 - LangGraph (`@langchain/langgraph`) - 状态图工作流
 - MCP Adapters (`@langchain/mcp-adapters`) - Model Context Protocol 集成
-- simple-git - Git 操作
-- nanoid - ID 生成
+- Monorepo: pnpm workspaces, Turborepo
 - Build: tsup (ESM only)
 - Test: Vitest
 - Lint: ESLint 9 + typescript-eslint

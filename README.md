@@ -1,15 +1,42 @@
 # X-CodeGen-Agent
 
-基于 LangChain.js 的前端代码生成 CLI 工具，支持多种 LLM 提供商和完整的工作流编排。
+基于 LangChain.js 的前端代码生成工具集，采用 Monorepo 架构，支持多种 LLM 提供商和完整的工作流编排。
 
 ## 特性
 
+- **Monorepo 架构**: 使用 pnpm workspaces + Turborepo 管理多包项目
 - **CLI 工具**: 命令行直接运行，无需编写代码
 - **多模型支持**: OpenAI、Anthropic、DeepSeek、智谱 GLM、通义千问、月之暗面、百川、MiniMax
 - **LangGraph 工作流**: 多步骤代码生成工作流，支持检查点持久化和恢复
 - **MCP 集成**: Figma 设计数据提取、知识库 PRD 查询
 - **沙箱环境**: 隔离的代码执行环境，支持 Git 克隆和依赖安装
 - **LCEL 架构**: 使用 LangChain Expression Language 构建可组合的 Agent 链
+
+## 架构设计
+
+```
+x-codegen-agent/
+├── packages/           # 库包（可复用的核心能力）
+│   ├── types/          # 共享类型定义 @x-codegen/types
+│   ├── config/         # 配置加载 @x-codegen/config
+│   ├── sandbox/        # 沙箱管理 @x-codegen/sandbox
+│   ├── models/         # LLM 模型管理 @x-codegen/models
+│   ├── tools/          # LangChain 工具 @x-codegen/tools
+│   ├── agents/         # LCEL Agent @x-codegen/agents
+│   ├── workflow/       # LangGraph 工作流 @x-codegen/workflow
+│   └── sdk/            # 核心 SDK 聚合 @x-codegen/sdk
+├── apps/               # 应用层（各种前端入口）
+│   └── cli/            # CLI 应用 @x-codegen/cli
+└── tools/              # 开发工具配置
+```
+
+### 包依赖关系
+
+```
+types ──┬── config
+        ├── sandbox
+        └── models ──→ tools ──→ agents ──→ workflow ──→ sdk ──→ cli
+```
 
 ## 技术栈
 
@@ -18,6 +45,7 @@
 | Runtime | Node.js >= 20 |
 | Language | TypeScript 5.7+ |
 | Framework | LangChain 1.2+, LangGraph |
+| Monorepo | pnpm workspaces, Turborepo |
 | CLI | commander, chalk, ora |
 | Build | tsup (ESM only) |
 | Test | Vitest |
@@ -30,10 +58,10 @@
 
 ```bash
 # 使用 pnpm
-pnpm install -g x-codegen-agent
+pnpm install -g @x-codegen/cli
 
 # 或使用 npm
-npm install -g x-codegen-agent
+npm install -g @x-codegen/cli
 ```
 
 ### 从源码安装
@@ -43,7 +71,7 @@ git clone https://github.com/evanfang/x-codegen-agent.git
 cd x-codegen-agent
 pnpm install
 pnpm build
-pnpm link --global
+cd apps/cli && pnpm link --global
 ```
 
 ## 快速开始
@@ -102,12 +130,32 @@ x-codegen generate --help
 
 ## SDK 用法
 
-你也可以作为 SDK 在代码中使用：
+```typescript
+import {
+  // 模型管理
+  createModel,
+  createModelFromPreset,
+  ModelFactory,
+  // Agent
+  BaseAgent,
+  ToolAgent,
+  createBaseAgent,
+  createToolAgent,
+  // 工作流
+  generateCode,
+  generateCodeStream,
+  // 沙箱
+  createSandbox,
+  // 工具
+  FigmaMCPClient,
+  KnowledgeBaseMCPClient,
+} from '@x-codegen/sdk';
+```
 
 ### 创建模型实例
 
 ```typescript
-import { createModel, createModelFromPreset, ModelFactory } from 'x-codegen-agent';
+import { createModel, createModelFromPreset, ModelFactory } from '@x-codegen/sdk';
 
 // 方式一：直接创建
 const model = await createModel({
@@ -128,10 +176,10 @@ const model = await factory.getOrCreate('my-model', {
 });
 ```
 
-### 3. 使用 Agent
+### 使用 Agent
 
 ```typescript
-import { BaseAgent, ToolAgent, createBaseAgent, createToolAgent } from 'x-codegen-agent';
+import { createBaseAgent, createToolAgent } from '@x-codegen/sdk';
 import { z } from 'zod';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 
@@ -164,10 +212,10 @@ const toolResult = await toolAgent.execute({
 });
 ```
 
-### 4. 代码生成工作流
+### 代码生成工作流
 
 ```typescript
-import { generateCode, generateCodeStream } from 'x-codegen-agent';
+import { generateCode, generateCodeStream } from '@x-codegen/sdk';
 
 // 一次性执行
 const result = await generateCode({
@@ -179,7 +227,7 @@ const result = await generateCode({
 });
 
 if (result.success) {
-  console.log('生成的文件:', result.files);
+  console.log('生成的文件:', result.generatedFiles);
 }
 
 // 流式执行（实时进度）
@@ -192,102 +240,21 @@ for await (const event of generateCodeStream({
 }
 ```
 
-## API 文档
-
-### 模型管理
-
-| 函数 | 说明 |
-|------|------|
-| `createModel(config)` | 创建模型实例 |
-| `createModelFromPreset(preset)` | 从预设创建模型 |
-| `getOrCreateModel(id, config)` | 获取或创建缓存模型 |
-| `ModelFactory.getInstance()` | 获取工厂单例 |
-
-### Agent
-
-| 类/函数 | 说明 |
-|---------|------|
-| `BaseAgent` | 基础 Agent，支持 LCEL chain 构建 |
-| `ToolAgent` | 工具调用 Agent，支持 bindTools |
-| `createBaseAgent(config)` | 创建基础 Agent |
-| `createToolAgent(config)` | 创建工具调用 Agent |
-
-### 工作流
-
-| 函数 | 说明 |
-|------|------|
-| `generateCode(options)` | 一次性执行代码生成 |
-| `generateCodeStream(options)` | 流式执行（返回 AsyncGenerator） |
-| `createCodeGenGraph()` | 创建带检查点的 StateGraph |
-| `createCodeGenGraphWithoutCheckpointer()` | 创建无检查点的 StateGraph |
-
-### 沙箱
-
-| 类/函数 | 说明 |
-|---------|------|
-| `SandboxManager` | 沙箱生命周期管理 |
-| `CommandExecutor` | 命令执行器 |
-| `createSandbox(config)` | 创建沙箱实例 |
-| `createExecutor(config)` | 创建命令执行器 |
-
-### MCP 工具
-
-| 类/函数 | 说明 |
-|---------|------|
-| `FigmaMCPClient` | Figma 设计数据提取 |
-| `KnowledgeBaseMCPClient` | 知识库 PRD 查询 |
-
-## 项目结构
-
-```
-x-codegen-agent/
-├── src/
-│   ├── cli/              # CLI 模块
-│   │   ├── index.ts        # CLI 入口
-│   │   ├── commands/       # 命令实现
-│   │   │   ├── generate.ts # generate 命令
-│   │   │   └── index.ts    # 命令导出
-│   │   └── utils/          # CLI 工具
-│   │       ├── logger.ts   # 彩色日志
-│   │       └── progress.ts # Spinner 进度
-│   ├── agents/           # Agent 实现
-│   │   ├── base-agent.ts   # BaseAgent 基础类
-│   │   └── tool-agent.ts   # ToolAgent 工具调用类
-│   ├── config/           # 配置加载
-│   ├── models/           # LLM 模型管理
-│   │   ├── factory.ts      # ModelFactory 单例
-│   │   ├── providers.ts    # 提供商预设
-│   │   └── helpers.ts      # 工具函数
-│   ├── sandbox/          # 沙箱管理
-│   │   ├── manager.ts      # 沙箱生命周期
-│   │   └── executor.ts     # 命令执行器
-│   ├── tools/            # LangChain 工具
-│   │   ├── codegen/        # 代码生成工具
-│   │   └── mcp/            # MCP 集成
-│   ├── types/            # TypeScript 类型定义
-│   ├── workflow/         # LangGraph 工作流
-│   │   ├── graph.ts        # StateGraph 构建
-│   │   ├── nodes/          # 工作流节点
-│   │   └── index.ts        # 对外 API
-│   └── index.ts          # SDK 入口文件
-├── dist/                 # 构建产物
-├── task.json             # 任务追踪
-├── progress.txt          # 进度日志
-└── init.sh               # 环境初始化脚本
-```
-
 ## 开发命令
 
 ```bash
 pnpm install          # 安装依赖
-pnpm dev              # 开发模式 (tsx 运行)
-pnpm build            # 生产构建 (tsup)
-pnpm test             # 运行测试 (vitest)
-pnpm test -- --run    # 单次测试运行
-pnpm test:coverage    # 测试覆盖率
+pnpm build            # 构建所有包 (Turborepo)
+pnpm dev              # 开发模式
+pnpm test             # 运行测试
 pnpm lint             # ESLint 检查
-pnpm lint:fix         # 自动修复 lint 问题
 pnpm typecheck        # TypeScript 类型检查
+pnpm check            # 完整检查（typecheck + lint + test）
+
+# 发布管理
+pnpm changeset        # 创建变更记录
+pnpm version          # 版本升级
+pnpm release          # 发布到 npm
 ```
 
 ## 支持的模型提供商
@@ -311,62 +278,6 @@ pnpm typecheck        # TypeScript 类型检查
 | `template` | Figma MCP 获取设计 → 生成静态代码 |
 | `completion` | 知识库 MCP 获取 PRD → LLM 补全逻辑 |
 | `validate` | pnpm check → 验证通过则复制到宿主 |
-
-## 示例
-
-### 自定义 Agent 配置
-
-```typescript
-import { ToolAgent } from 'x-codegen-agent';
-
-const agent = new ToolAgent({
-  name: 'code-reviewer',
-  description: '代码审查 Agent',
-  model,
-  systemPrompt: `你是一个专业的代码审查专家。
-请从以下方面进行审查：
-1. 代码质量
-2. 安全性
-3. 性能
-4. 可维护性`,
-  maxIterations: 5,
-  temperature: 0.3,
-  timeout: 60000,
-  tools: [lintTool, testTool],
-});
-
-// 流式执行
-for await (const event of agent.stream({ input: '审查这段代码...' })) {
-  if (event.type === 'token') {
-    process.stdout.write(event.content);
-  }
-}
-```
-
-### 沙箱操作
-
-```typescript
-import { createSandbox } from 'x-codegen-agent';
-
-const sandbox = createSandbox({
-  rootDir: '/tmp/my-sandbox',
-  env: { NODE_ENV: 'development' },
-});
-
-await sandbox.initialize();
-
-// 文件操作
-await sandbox.writeFile('src/index.ts', 'console.log("Hello");');
-const content = await sandbox.readFile('src/index.ts');
-
-// 命令执行
-const executor = sandbox.getExecutor();
-await executor.pnpm(['install']);
-await executor.pnpm(['build']);
-
-// 清理
-await sandbox.cleanup();
-```
 
 ## License
 

@@ -1,0 +1,32 @@
+{
+  "name": "@x-codegen/agents",
+  "version": "1.0.0",
+  "description": "X-CodeGen LCEL Agent 模块",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["agents", "langchain", "lcel", "codegen"],
+  "author": "evanfang",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/core": "^1.0.0",
+    "@x-codegen/models": "workspace:*",
+    "@x-codegen/types": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@x-codegen/workflow",
+  "version": "1.0.0",
+  "description": "X-CodeGen LangGraph 工作流模块",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["workflow", "langgraph", "codegen"],
+  "author": "evanfang",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/core": "^1.0.0",
+    "@langchain/langgraph": "1.1.4",
+    "@x-codegen/agents": "workspace:*",
+    "@x-codegen/models": "workspace:*",
+    "@x-codegen/sandbox": "workspace:*",
+    "@x-codegen/tools": "workspace:*",
+    "@x-codegen/types": "workspace:*",
+    "nanoid": "5.1.6"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

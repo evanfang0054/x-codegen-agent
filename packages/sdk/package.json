@@ -1,0 +1,41 @@
+{
+  "name": "@x-codegen/sdk",
+  "version": "1.0.0",
+  "description": "X-CodeGen SDK - 聚合所有模块的统一入口",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["sdk", "codegen", "langchain", "agent"],
+  "author": "evanfang",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/anthropic": "^1.0.0",
+    "@langchain/core": "^1.0.0",
+    "@langchain/langgraph": "1.1.4",
+    "@langchain/mcp-adapters": "1.1.3",
+    "@langchain/openai": "^1.2.7",
+    "@x-codegen/agents": "workspace:*",
+    "@x-codegen/config": "workspace:*",
+    "@x-codegen/models": "workspace:*",
+    "@x-codegen/sandbox": "workspace:*",
+    "@x-codegen/tools": "workspace:*",
+    "@x-codegen/types": "workspace:*",
+    "@x-codegen/workflow": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -40,3 +40,12 @@ coverage/
 # Build cache
 .turbo
 .cache
+
+# Monorepo
+**/dist/
+**/node_modules/
+
+# Changesets
+.changeset/*.md
+!.changeset/config.json
+!.changeset/README.md

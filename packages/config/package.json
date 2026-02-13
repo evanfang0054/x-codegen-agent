@@ -1,0 +1,32 @@
+{
+  "name": "@x-codegen/config",
+  "version": "1.0.0",
+  "description": "X-CodeGen 配置加载模块",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["config", "codegen", "langchain"],
+  "author": "evanfang",
+  "license": "MIT",
+  "dependencies": {
+    "@x-codegen/models": "workspace:*",
+    "@x-codegen/types": "workspace:*",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  }
+}
