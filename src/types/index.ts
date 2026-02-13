@@ -2,8 +2,9 @@
  * 类型定义入口
  */
 
-// 原有类型
-export interface AgentConfig {
+// 原有类型（已废弃，保留向后兼容）
+/** @deprecated 使用 AgentConfig from agents.ts */
+export interface LegacyAgentConfig {
   /** LLM 模型名称 */
   modelName: string;
   /** 温度参数 */
@@ -11,6 +12,10 @@ export interface AgentConfig {
   /** 最大 tokens */
   maxTokens?: number;
 }
+
+// 保留旧名称的别名
+/** @deprecated 使用 AgentConfig from agents.ts */
+export type AgentConfig = LegacyAgentConfig;
 
 export interface CodeGenResult {
   /** 生成的代码 */
@@ -91,3 +96,17 @@ export type {
   KnowledgeBaseChunk,
   MultiMCPClientConfig,
 } from './mcp.js';
+
+// Agent 相关类型
+export type {
+  AgentConfig as LCLAgentConfig,
+  AgentInput,
+  AgentOutput,
+  ToolCallRecord,
+  AgentStatus,
+  AgentExecuteOptions,
+  AgentStreamEvent,
+  LCELChainConfig,
+  ReActAgentConfig,
+  PlanExecuteAgentConfig,
+} from './agents.js';

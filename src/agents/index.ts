@@ -1,7 +1,9 @@
 /**
- * Agent 模块
- * 后续实现具体的 Agent 逻辑
+ * Agent 模块入口
  */
 
-// 占位导出
-export const placeholder = true;
+// 基础 Agent
+export { BaseAgent, createBaseAgent } from './base-agent.js';
+
+// 工具调用 Agent
+export { ToolAgent, createToolAgent } from './tool-agent.js';

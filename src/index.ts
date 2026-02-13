@@ -88,3 +88,13 @@ export {
   // 类型
   type CodeGenGraph,
 } from './workflow/index.js';
+
+// Agent 模块导出
+export {
+  // 基础 Agent
+  BaseAgent,
+  createBaseAgent,
+  // 工具调用 Agent
+  ToolAgent,
+  createToolAgent,
+} from './agents/index.js';

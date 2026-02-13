@@ -53,3 +53,21 @@
 - 所有检查通过：typecheck ✓, lint ✓, test ✓
 - 下一步：添加更多单元测试，实现 Agent 模块扩展
 
+## [2026-02-13 16:30] 单元测试 + Agent 模块实现
+- 完成了全面的单元测试覆盖
+  - 创建 __tests__/workflow.test.ts - 工作流节点和图测试
+  - 创建 __tests__/sandbox.test.ts - 沙箱管理器和执行器测试
+  - 创建 __tests__/mcp.test.ts - MCP 客户端测试
+  - 创建 __tests__/codegen.test.ts - 组件生成器测试
+  - 修复 vitest.config.ts 添加路径别名配置
+  - 所有 95 个测试通过
+- 完成了 Agent 模块实现
+  - 创建 types/agents.ts - Agent 类型定义
+  - 创建 agents/base-agent.ts - BaseAgent 基础类（LCEL chain 构建）
+  - 创建 agents/tool-agent.ts - ToolAgent 工具调用类（bindTools 支持）
+  - 更新 agents/index.ts 导出
+  - 解决 AgentConfig 类型冲突（重命名旧类型为 LegacyAgentConfig）
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (95 tests)
+- 所有 task.json 功能已实现完成
+- 下一步：可考虑集成测试、文档完善、发布准备
+

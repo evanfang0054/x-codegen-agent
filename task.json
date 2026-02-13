@@ -126,8 +126,8 @@
         "支持 prompt 模板和模型组合",
         "支持工具调用"
       ],
-      "passes": false,
-      "notes": "待开发 - 可基于 workflow 模块扩展"
+      "passes": true,
+      "completedAt": "2026-02-13"
     },
     {
       "id": "feat-010",
@@ -140,8 +140,8 @@
         "为 mcp 模块添加测试",
         "为 codegen 模块添加测试"
       ],
-      "passes": false,
-      "notes": "当前只有 models 模块有测试"
+      "passes": true,
+      "completedAt": "2026-02-13"
     }
   ],
   "metadata": {
