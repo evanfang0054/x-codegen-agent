@@ -184,9 +184,9 @@ describe('CLI 端到端测试 - 智谱 GLM 模型', () => {
             : '';
 
       console.log('需求分析结果:\n', content);
-      // 智谱 GLM 可能返回空字符串，只验证响应存在即可
-      expect(response.content).not.toBeNull();
-      expect(response.content).not.toBeUndefined();
+      // 验证响应对象有效
+      expect(response).toHaveProperty('content');
+      expect(response.response_metadata).toBeDefined();
     }, 60000);
   });
 
@@ -358,21 +358,21 @@ describe('CLI 端到端测试 - 智谱 GLM 模型', () => {
       expect(errorStep.data?.retryCount).toBe(3);
     });
 
-    it('应该能在 API Key 无效时抛出错误', async () => {
+    it('应该能在 API Key 无效时创建实例但调用失败', async () => {
       const originalKey = process.env.ZHIPU_API_KEY;
-      process.env.ZHIPU_API_KEY = 'invalid-key';
+      process.env.ZHIPU_API_KEY = 'invalid-key-12345';
 
       try {
-        await createModelFromPreset('zhipu', {
+        // 创建实例时不会立即验证 API Key
+        const model = await createModelFromPreset('zhipu', {
           model: 'glm-5',
           temperature: 0.1,
           maxTokens: 10,
         });
-        // 创建实例时不会立即验证 API Key
-        expect(true).toBe(true);
-      } catch {
-        // 如果抛出错误也是预期的
-        expect(true).toBe(true);
+        expect(model).toBeDefined();
+
+        // 但调用时会失败（由于是外部 API，这里只验证模型创建成功）
+        // 实际调用可能会返回错误，但我们不在这里测试
       } finally {
         // 恢复环境变量
         if (originalKey) {

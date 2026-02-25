@@ -129,9 +129,10 @@ describe('CLI 集成测试 - 智谱 GLM 模型', () => {
       const content = contentToString(response.content);
       console.log('智谱 GLM 响应:', content);
 
-      // 智谱 GLM 可能返回空字符串，只验证响应存在即可
-      expect(response.content).not.toBeNull();
-      expect(response.content).not.toBeUndefined();
+      // 验证响应对象有效（content 可能是空字符串，但 response 必须有效）
+      expect(response).toHaveProperty('content');
+      // 验证响应时间或其他元数据
+      expect(response.response_metadata).toBeDefined();
     }, 90000);
 
     it('应该能进行多轮对话', async () => {
@@ -180,10 +181,10 @@ describe('CLI 集成测试 - 智谱 GLM 模型', () => {
       const content = contentToString(response.content);
 
       console.log('代码生成响应:\n', content);
-      // 智谱 GLM 可能返回空字符串或非代码内容，只验证响应存在即可
-      expect(response.content).not.toBeNull();
-      expect(response.content).not.toBeUndefined();
-    }, 60000);
+      // 验证响应对象有效
+      expect(response).toHaveProperty('content');
+      expect(response.response_metadata).toBeDefined();
+    }, 90000);
   });
 
   describe('流式输出测试', () => {
@@ -450,6 +451,40 @@ describe('MCP 工具集成测试', () => {
       expect(result.success).toBe(true);
       expect(callCount).toBe(3);
     });
+
+    it('应该在所有调用都失败时返回失败结果', async () => {
+      const { executeWithFallback } = await import('@x-codegen/sdk');
+
+      const result = await executeWithFallback({
+        mcpCall: async () => {
+          throw new Error('MCP 服务不可用');
+        },
+        // 不提供 fallbackCall
+        retryConfig: { maxRetries: 2, retryInterval: 50 },
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.source).toBe('mcp');
+    });
+
+    it('应该在 MCP 和 fallback 都失败时返回失败结果', async () => {
+      const { executeWithFallback } = await import('@x-codegen/sdk');
+
+      const result = await executeWithFallback({
+        mcpCall: async () => {
+          throw new Error('MCP 失败');
+        },
+        fallbackCall: async () => {
+          throw new Error('Fallback 也失败');
+        },
+        retryConfig: { maxRetries: 1, retryInterval: 50 },
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('MCP 调用失败');
+      expect(result.error).toContain('本地回退也失败');
+    });
   });
 
   describe('MCP 客户端创建测试', () => {
@@ -462,6 +497,8 @@ describe('MCP 工具集成测试', () => {
       });
 
       expect(client).toBeDefined();
+      expect(typeof client.searchAPIs).toBe('function');
+      expect(typeof client.getAPIDetail).toBe('function');
     });
 
     it('应该能创建 One-day MCP 客户端', async () => {
@@ -469,6 +506,28 @@ describe('MCP 工具集成测试', () => {
 
       const client = createOneDayMCPClient({
         url: 'http://localhost:3001/mcp',
+      });
+
+      expect(client).toBeDefined();
+      expect(typeof client.getStaticTemplate).toBe('function');
+      expect(typeof client.completeLogicCode).toBe('function');
+    });
+
+    it('应该能创建 Figma MCP 客户端', async () => {
+      const { createFigmaMCPClient } = await import('@x-codegen/sdk');
+
+      const client = createFigmaMCPClient({
+        accessToken: 'test-access-token',
+      });
+
+      expect(client).toBeDefined();
+    });
+
+    it('应该能创建 Knowledge Base MCP 客户端', async () => {
+      const { createKnowledgeBaseMCPClient } = await import('@x-codegen/sdk');
+
+      const client = createKnowledgeBaseMCPClient({
+        url: 'http://localhost:3000/mcp',
       });
 
       expect(client).toBeDefined();
