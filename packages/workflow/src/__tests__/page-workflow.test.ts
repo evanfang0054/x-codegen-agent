@@ -156,8 +156,15 @@ describe('Page-Codegen Types', () => {
           taskPlan: {
             pageName: 'Test',
             goal: 'Test goal',
+            originalFiles: [],
+            aiWorkFiles: [],
+            auxiliaryFiles: {},
             stages: [],
+            keyQuestions: [],
+            decisions: [],
+            errors: [],
             currentStep: 'api-design',
+            currentStatus: 'in_progress',
           },
         },
       };

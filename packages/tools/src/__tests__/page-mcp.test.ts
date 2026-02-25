@@ -3,14 +3,13 @@
  * 测试 One-day MCP、Apifox MCP 和回退策略
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock @langchain/mcp-adapters
 vi.mock('@langchain/mcp-adapters', () => ({
   MultiServerMCPClient: class MultiServerMCPClient {
-    private config: Record<string, unknown>;
-    constructor(config: Record<string, unknown>) {
-      this.config = config;
+    constructor(_config: Record<string, unknown>) {
+      // Mock constructor
     }
     async initializeConnections() {
       // Mock 初始化

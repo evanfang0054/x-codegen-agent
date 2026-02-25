@@ -51,8 +51,6 @@ const createMockTool = (name: string) => ({
   invoke: vi.fn().mockResolvedValue({ result: `${name} executed` }),
 });
 
-type MockTool = ReturnType<typeof createMockTool>;
-
 describe('BaseAgent', () => {
   let mockModel: MockModel;
   let baseConfig: AgentConfig;

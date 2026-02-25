@@ -66,8 +66,9 @@ export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
     displayName: '智谱 GLM',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     envKey: 'ZHIPU_API_KEY',
-    defaultModel: 'glm-4-plus',
+    defaultModel: 'glm-5',
     availableModels: [
+      'glm-5',
       'glm-4-plus',
       'glm-4-0520',
       'glm-4',

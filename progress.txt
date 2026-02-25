@@ -258,3 +258,45 @@
 - 更新 task.json 添加 feat-024
 - 下一步：生产环境测试
 
+## [2026-02-25 16:12] 智谱 GLM 模型集成测试
+- 完成了智谱 GLM 模型集成和测试
+  - **模型配置更新**
+    - 更新 providers.ts 添加 glm-5 到智谱 GLM 可用模型列表
+    - 将智谱 GLM 默认模型从 glm-4-plus 改为 glm-5
+  - **测试用例更新**
+    - 更新 models.test.ts 使用 zhipu/glm-5 替代 deepseek
+    - 所有 27 个模型测试通过
+  - **集成测试创建**
+    - 创建 apps/cli/src/__tests__/integration.test.ts
+    - 测试模型配置验证（提供商预设、OpenAI 兼容检测）
+    - 测试模型创建（环境变量读取、完整配置、预设创建）
+    - 测试模型调用（单次调用、多轮对话、代码生成）
+    - 测试流式输出
+    - 测试模型缓存
+    - 测试错误处理（缺少 API Key、无效模型名称）
+    - 新增 14 个集成测试用例
+  - **类型检查修复**
+    - 修复 agents.test.ts 未使用的 MockTool 类型
+    - 修复 page-mcp.test.ts 未使用的导入和私有字段
+    - 修复 page-workflow.test.ts TaskPlan 缺少必需字段
+    - 修复 cli.test.ts 未使用的导入和测试断言格式
+    - 修复 integration.test.ts 类型检查错误
+- **测试覆盖**
+  - types: 通过（纯类型定义）
+  - models: 27 个测试 ✅
+  - sandbox: 29 个测试 ✅
+  - config: 24 个测试 ✅
+  - agents: 20 个测试 ✅
+  - tools: 39 个测试 ✅
+  - workflow: 25 个测试 ✅
+  - cli: 54 个测试（40 + 14 新增）✅
+  - 总计：218 个测试通过
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (24 tasks)
+- 更新 task.json 添加 feat-025 和 feat-026
+- 智谱 GLM 代码生成验证成功：
+  ```typescript
+  function add(a: number, b: number): number {
+    return a + b;
+  }
+  ```
+- 下一步：生产环境测试、发布准备

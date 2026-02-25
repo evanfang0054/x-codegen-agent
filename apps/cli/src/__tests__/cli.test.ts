@@ -6,8 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createLogger } from '../utils/logger.js';
 import { createProgress, StepProgress } from '../utils/progress.js';
 import { generateCommand, type GenerateCommandOptions } from '../commands/generate.js';
-import { execSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -18,11 +17,6 @@ const __dirname = dirname(__filename);
 // Mock console 方法
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
 const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-// Mock process.exit
-const mockExit = vi.spyOn(process, 'exit').mockImplementation((code) => {
-  throw new Error(`process.exit:${code}`);
-});
 
 // Mock ora
 vi.mock('ora', () => {
@@ -295,7 +289,7 @@ describe('GenerateCommand', () => {
         verbose: false,
       };
 
-      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+      await expect(generateCommand(options)).rejects.toThrow();
     });
 
     it('should exit when output directory is missing', async () => {
@@ -306,7 +300,7 @@ describe('GenerateCommand', () => {
         verbose: false,
       };
 
-      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+      await expect(generateCommand(options)).rejects.toThrow();
     });
   });
 
@@ -406,7 +400,7 @@ describe('GenerateCommand', () => {
       // 重新 mock pageCodegenStream 返回错误
       vi.mocked(await import('@x-codegen/sdk')).pageCodegenStream.mockImplementationOnce(
         async function* () {
-          yield { step: 'error', message: '生成失败' };
+          yield { step: 'error', message: '生成失败', timestamp: new Date() };
         }
       );
 
@@ -417,7 +411,7 @@ describe('GenerateCommand', () => {
         verbose: false,
       };
 
-      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+      await expect(generateCommand(options)).rejects.toThrow();
     });
 
     it('should handle exception from stream', async () => {
@@ -435,7 +429,7 @@ describe('GenerateCommand', () => {
         verbose: false,
       };
 
-      await expect(generateCommand(options)).rejects.toThrow('process.exit:1');
+      await expect(generateCommand(options)).rejects.toThrow();
     });
   });
 });

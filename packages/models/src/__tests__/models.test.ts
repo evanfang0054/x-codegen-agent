@@ -20,10 +20,10 @@ import type { ModelConfig, ProviderPreset } from '@x-codegen/types';
 describe('Providers', () => {
   describe('getProviderPreset', () => {
     it('should return preset for known provider', () => {
-      const preset = getProviderPreset('deepseek');
+      const preset = getProviderPreset('zhipu');
       expect(preset).toBeDefined();
-      expect(preset?.provider).toBe('deepseek');
-      expect(preset?.baseUrl).toBe('https://api.deepseek.com/v1');
+      expect(preset?.provider).toBe('zhipu');
+      expect(preset?.baseUrl).toBe('https://open.bigmodel.cn/api/paas/v4');
     });
 
     it('should return preset for provider by ID', () => {
@@ -44,14 +44,14 @@ describe('Providers', () => {
       expect(providers.length).toBeGreaterThan(0);
       expect(providers.find((p) => p.provider === 'openai')).toBeDefined();
       expect(providers.find((p) => p.provider === 'anthropic')).toBeDefined();
-      expect(providers.find((p) => p.provider === 'deepseek')).toBeDefined();
+      expect(providers.find((p) => p.provider === 'zhipu')).toBeDefined();
     });
   });
 
   describe('isOpenAICompatible', () => {
     it('should return true for OpenAI compatible providers', () => {
       expect(isOpenAICompatible('openai')).toBe(true);
-      expect(isOpenAICompatible('deepseek')).toBe(true);
+      expect(isOpenAICompatible('zhipu')).toBe(true);
       expect(isOpenAICompatible('qwen')).toBe(true);
     });
 
@@ -65,8 +65,8 @@ describe('Helpers', () => {
   describe('validateModelConfig', () => {
     it('should validate a valid config', () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         apiKey: 'test-key',
       };
       const result = validateModelConfig(config);
@@ -144,21 +144,21 @@ describe('Helpers', () => {
 
   describe('generateModelId', () => {
     it('should generate a unique model ID', () => {
-      const id1 = generateModelId('deepseek', 'deepseek-chat');
-      const id2 = generateModelId('deepseek', 'deepseek-chat');
+      const id1 = generateModelId('zhipu', 'glm-5');
+      const id2 = generateModelId('zhipu', 'glm-5');
       expect(id1).not.toBe(id2);
-      expect(id1).toContain('deepseek');
-      expect(id1).toContain('deepseek-chat');
+      expect(id1).toContain('zhipu');
+      expect(id1).toContain('glm-5');
     });
   });
 
   describe('parseModelId', () => {
     it('should parse a valid model ID', () => {
-      const id = 'deepseek:deepseek-chat:123456:abc123';
+      const id = 'zhipu:glm-5:123456:abc123';
       const parsed = parseModelId(id);
       expect(parsed).toEqual({
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
       });
     });
 
@@ -171,8 +171,8 @@ describe('Helpers', () => {
   describe('getConfigHash', () => {
     it('should generate consistent hash for same config', () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
       };
       const hash1 = getConfigHash(config);
       const hash2 = getConfigHash(config);
@@ -181,12 +181,12 @@ describe('Helpers', () => {
 
     it('should generate different hash for different config', () => {
       const config1: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
       };
       const config2: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-coder',
+        provider: 'zhipu',
+        model: 'glm-4-plus',
       };
       const hash1 = getConfigHash(config1);
       const hash2 = getConfigHash(config2);
@@ -219,8 +219,8 @@ describe('ModelFactory', () => {
   describe('cache management', () => {
     it('should cache model instances', async () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         apiKey: 'test-key',
       };
 
@@ -233,8 +233,8 @@ describe('ModelFactory', () => {
 
     it('should remove cached model', async () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         apiKey: 'test-key',
       };
 
@@ -247,8 +247,8 @@ describe('ModelFactory', () => {
 
     it('should clear all cache', async () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         apiKey: 'test-key',
       };
 
@@ -282,8 +282,8 @@ describe('ModelFactory', () => {
   describe('default model', () => {
     it('should set and get default model', async () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         apiKey: 'test-key',
       };
 
@@ -298,20 +298,20 @@ describe('ModelFactory', () => {
   describe('create', () => {
     it('should throw error for missing API key', async () => {
       const config: ModelConfig = {
-        provider: 'deepseek',
-        model: 'deepseek-chat',
+        provider: 'zhipu',
+        model: 'glm-5',
         // No apiKey provided
       };
 
       // 临时删除环境变量
-      const originalKey = process.env.DEEPSEEK_API_KEY;
-      delete process.env.DEEPSEEK_API_KEY;
+      const originalKey = process.env.ZHIPU_API_KEY;
+      delete process.env.ZHIPU_API_KEY;
 
       await expect(factory.create(config)).rejects.toThrow('缺少 API Key');
 
       // 恢复环境变量
       if (originalKey) {
-        process.env.DEEPSEEK_API_KEY = originalKey;
+        process.env.ZHIPU_API_KEY = originalKey;
       }
     });
 
@@ -330,8 +330,8 @@ describe('Convenience functions', () => {
 
   it('createModel should create a model', async () => {
     const config: ModelConfig = {
-      provider: 'deepseek',
-      model: 'deepseek-chat',
+      provider: 'zhipu',
+      model: 'glm-5',
       apiKey: 'test-key',
     };
 
