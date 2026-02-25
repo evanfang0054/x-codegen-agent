@@ -89,6 +89,17 @@ export {
   type CodeGenGraph,
 } from '@x-codegen/workflow';
 
+// Page-Codegen 工作流模块导出
+export {
+  createPageCodegenGraph,
+  createPageCodegenGraphWithoutCheckpointer,
+  PageCodeGenerator,
+  createPageCodeGenerator,
+  pageCodegen,
+  pageCodegenStream,
+  type PageCodegenGraph,
+} from '@x-codegen/workflow';
+
 // Agent 模块导出
 export {
   // 基础 Agent

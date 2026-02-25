@@ -185,3 +185,76 @@
 - 所有检查通过：typecheck ✓, lint ✓, test ✓ (178 tests)
 - 下一步：发布各包到 npm
 
+## [2026-02-25] Page-Codegen 7 步工作流实现
+- 完成了 Page-Codegen 工作流调整方案实现
+  - **类型定义** (@x-codegen/types)
+    - 创建 types/page-workflow.ts 定义完整类型
+    - PageWorkflowStep 枚举（7 步 + error）
+    - TaskPlan、ResearchNotes、APISchemaDefinition 等核心类型
+    - PageCodegenStateAnnotation 状态定义
+    - 新增测试：types/__tests__/page-workflow.test.ts（21 个测试用例）
+  - **提示词模板** (@x-codegen/workflow)
+    - 创建 prompts/ 目录
+    - skill.ts - 核心约束和初始化提示词
+    - step1.ts ~ step6.ts - 6 个步骤的 ChatPromptTemplate
+    - prompts/index.ts - 统一导出
+  - **MCP 客户端扩展** (@x-codegen/tools)
+    - fallback-strategy.ts - MCP 优先、本地回退策略
+    - one-day-client.ts - One-day MCP 客户端（上报代码完成）
+    - apifox-client.ts - Apifox MCP 客户端（获取 API Schema）
+    - 新增测试：tools/__tests__/page-mcp.test.ts（15 个测试用例）
+  - **工作流节点** (@x-codegen/workflow)
+    - 创建 nodes/page/ 目录
+    - init.ts - 初始化（创建沙箱、克隆模板、安装依赖、创建 AI 副本）
+    - research.ts - 需求与代码研究
+    - api-design.ts - 接口与数据逻辑设计
+    - ui-design.ts - UI 组件与交互逻辑设计
+    - integration.ts - 代码整合与 PRD 验收
+    - validate.ts - 代码质量验证
+    - deliver.ts - 任务完成交付
+  - **工作流图** (@x-codegen/workflow)
+    - page-graph.ts - LangGraph StateGraph 实现
+    - PageCodeGenerator 类
+    - 便捷函数：pageCodegen, pageCodegenStream
+    - 新增测试：workflow/__tests__/page-workflow.test.ts（10 个测试用例）
+  - **SDK 和 CLI 更新**
+    - sdk/index.ts 导出 Page-Codegen 相关类型和函数
+    - cli/commands/generate.ts 使用新的 7 步工作流
+    - 更新 CLI 测试使用 pageCodegenStream
+- **测试覆盖**
+  - types: 21 个测试（新增）
+  - tools: 39 个测试（24 + 15 新增）
+  - workflow: 25 个测试（15 + 10 新增）
+  - cli: 40 个测试（39 + 1 新增）
+  - 总计：225 个测试通过
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (225 tests)
+- 更新 task.json 添加 feat-016 ~ feat-023
+- 下一步：生产环境测试、文档完善
+
+## [2026-02-25] 补全项目模板克隆功能
+- 恢复了原有的项目模板克隆功能
+  - **类型更新**
+    - PageCodegenOptions 添加 templateRepo?: string 选项
+    - PageCodegenStateAnnotation 添加 templateRepo 字段
+  - **Init 节点更新**
+    - 实现完整初始化流程：
+      1. 创建沙箱环境
+      2. **克隆 GitHub 模板仓库**
+      3. **安装项目依赖（pnpm install）**
+      4. 创建任务计划和研究笔记
+      5. 创建 AI 工作副本
+    - 添加默认模板仓库配置（DEFAULT_TEMPLATE_REPO）
+    - 添加沙箱缓存管理（getSandbox、cleanupSandbox）
+  - **工作流图更新**
+    - PageCodeGenerator 初始状态添加 templateRepo
+  - **CLI 更新**
+    - GenerateCommandOptions 添加 template 参数
+    - verbose 模式打印模板仓库信息
+  - **测试更新**
+    - workflow 测试添加 templateRepo 测试用例
+    - CLI 测试添加 template 参数测试用例
+    - 总计：226 个测试通过
+- 所有检查通过：typecheck ✓, lint ✓, test ✓ (226 tests)
+- 更新 task.json 添加 feat-024
+- 下一步：生产环境测试
+

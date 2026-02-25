@@ -32,7 +32,8 @@
       "Bash(do if:*)",
       "Bash(then cat \"$pkgtsconfig.json\")",
       "Bash(npx vitest run)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(nvm alias default:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

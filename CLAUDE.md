@@ -60,9 +60,9 @@ types ──┬── config
 | `@x-codegen/config` | 配置加载（JSON 文件 + 环境变量） |
 | `@x-codegen/sandbox` | 沙箱生命周期管理、命令执行 |
 | `@x-codegen/models` | ModelFactory 单例、提供商预设、配置验证 |
-| `@x-codegen/tools` | MCP 客户端（Figma、知识库）、组件生成器 |
+| `@x-codegen/tools` | MCP 客户端（Figma、知识库、Apifox、One-day）、组件生成器、回退策略 |
 | `@x-codegen/agents` | BaseAgent、ToolAgent（LCEL chain 构建） |
-| `@x-codegen/workflow` | LangGraph StateGraph、工作流节点 |
+| `@x-codegen/workflow` | LangGraph StateGraph、工作流节点、Page-Codegen 7 步工作流 |
 | `@x-codegen/sdk` | 聚合导出所有模块 |
 | `@x-codegen/cli` | 命令行工具入口 |
 
@@ -74,7 +74,7 @@ Monorepo 架构下，使用包引用而非路径别名：
 // ✅ 推荐：使用包引用
 import { ModelFactory } from '@x-codegen/models';
 import type { ModelConfig } from '@x-codegen/types';
-import { generateCode } from '@x-codegen/workflow';
+import { generateCode, pageCodegen } from '@x-codegen/workflow';
 
 // ❌ 避免：使用相对路径跨包引用
 import { ModelFactory } from '../models/index.js';
@@ -101,30 +101,59 @@ const model = await ModelFactory.getInstance().createFromPreset('qwen');
 const model = await ModelFactory.getInstance().getOrCreate('my-model', config);
 ```
 
-### 代码生成工作流
+### Page-Codegen 7 步工作流
 
 ```typescript
-import { generateCode, generateCodeStream } from '@x-codegen/sdk';
+import { pageCodegen, pageCodegenStream } from '@x-codegen/sdk';
 
 // 一次性执行
-const result = await generateCode({
+const result = await pageCodegen({
   figmaUrl: 'https://figma.com/file/xxx',
-  templateRepo: 'https://github.com/example/react-template',
   outputDir: '/path/to/output',
-  requirements: '实现用户登录页面',
-  maxRetries: 3,
+  templateRepo: 'https://github.com/example/react-tailwind-template',
+  requirements: '实现预订页面',
+  mcpServers: {
+    knowledgeBase: { url: 'http://localhost:3000/mcp' },
+    apifox: { apiKey: 'your-key' },
+    oneDay: { url: 'http://localhost:3001/mcp' },
+  },
 });
 
 // 流式执行（进度回调）
-for await (const event of generateCodeStream(options)) {
+for await (const event of pageCodegenStream(options)) {
   console.log(`[${event.step}] ${event.message}`);
 }
 
 // 工作流步骤说明：
-// 1. init      - 创建沙箱、克隆模板、安装依赖
-// 2. template  - Figma MCP 获取设计 → LLM 生成静态代码
-// 3. completion - 知识库 MCP 获取 PRD → LLM 补全业务逻辑
-// 4. validate  - pnpm check → 验证通过则输出到宿主环境
+// 0. init      - 创建沙箱、克隆模板仓库、安装依赖、创建 AI 工作副本
+// 1. research  - PRD 查询、静态代码分析、技术规范阅读
+// 2. api-design - Apifox MCP 获取 API Schema、设计数据层
+// 3. ui-design  - 组件 API 查询、交互逻辑设计
+// 4. integration - 代码整合、PRD 验收
+// 5. validate   - pnpm check 验证、生成 final_code.md
+// 6. deliver    - 任务完成交付、上报 one-day-mcp
+```
+
+### MCP 调用（MCP 优先、本地回退）
+
+```typescript
+import { executeWithFallback, createApifoxMCPClient } from '@x-codegen/sdk';
+
+// 所有 MCP 调用都有本地回退策略
+const result = await executeWithFallback({
+  mcpCall: async () => {
+    const client = createApifoxMCPClient({ apiKey: 'your-key' });
+    return client.searchAPIs(['booking']);
+  },
+  fallbackCall: async () => {
+    // 本地回退逻辑
+    return { success: true, data: [] };
+  },
+  retryConfig: { maxRetries: 5, retryInterval: 2000 },
+  onError: (error, retryCount) => {
+    console.warn(`MCP 调用失败 (${retryCount}): ${error.message}`);
+  },
+});
 ```
 
 ### 测试文件位置
@@ -132,11 +161,17 @@ for await (const event of generateCodeStream(options)) {
 测试文件统一放在各包的 `src/__tests__/` 目录中：
 
 ```
-packages/models/src/__tests__/models.test.ts
+packages/types/src/__tests__/page-workflow.test.ts
+packages/config/src/__tests__/config.test.ts
 packages/sandbox/src/__tests__/sandbox.test.ts
+packages/models/src/__tests__/models.test.ts
 packages/tools/src/__tests__/mcp.test.ts
+packages/tools/src/__tests__/page-mcp.test.ts
 packages/tools/src/__tests__/codegen.test.ts
+packages/agents/src/__tests__/agents.test.ts
 packages/workflow/src/__tests__/workflow.test.ts
+packages/workflow/src/__tests__/page-workflow.test.ts
+apps/cli/src/__tests__/cli.test.ts
 ```
 
 ## LCEL (LangChain Expression Language) 编码规范

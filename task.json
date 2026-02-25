@@ -234,12 +234,142 @@
       "completedAt": "2026-02-13",
       "package": "@x-codegen/cli",
       "notes": "CLI 测试从 26 个增加到 39 个，总计 178 个测试通过"
+    },
+    {
+      "id": "feat-016",
+      "category": "types",
+      "description": "Page-Codegen 类型定义 - PageWorkflowStep、TaskPlan、ResearchNotes 等",
+      "priority": "high",
+      "steps": [
+        "定义 PageWorkflowStep 枚举（init/research/api-design/ui-design/integration/validate/deliver）",
+        "定义 TaskPlan、TaskPlanItem 接口",
+        "定义 ResearchNotes、ResearchNote 接口",
+        "定义 APISchemaDefinition、OriginalFileInfo、AIWorkFileInfo 接口",
+        "定义 MCPCallResult<T>、MCPServerConfig 接口（支持 http/stdio/npx）",
+        "定义 PageCodegenStateAnnotation 状态",
+        "更新 types/index.ts 导出"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/types"
+    },
+    {
+      "id": "feat-017",
+      "category": "prompts",
+      "description": "Page-Codegen 提示词转换 - 将 docs/page-codegen/*.md 转换为 PromptTemplate",
+      "priority": "high",
+      "steps": [
+        "创建 packages/workflow/src/prompts/ 目录",
+        "实现 skill.ts（SKILL.md 核心约束和步骤0）",
+        "实现 step1.ts 到 step6.ts（6 个步骤的提示词）",
+        "创建 prompts/index.ts 导出所有提示词"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/workflow"
+    },
+    {
+      "id": "feat-018",
+      "category": "mcp",
+      "description": "MCP 客户端扩展 - 支持多传输方式（http/stdio/npx）和回退策略",
+      "priority": "high",
+      "steps": [
+        "实现 fallback-strategy.ts（MCP 优先、本地回退策略）",
+        "实现 one-day-client.ts（one-day-mcp-server 客户端）",
+        "实现 apifox-client.ts（apifox-api-docs-mcp 客户端）",
+        "更新 tools/mcp/index.ts 导出"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/tools"
+    },
+    {
+      "id": "feat-020",
+      "category": "nodes",
+      "description": "Page-Codegen 工作流节点 - 7 个步骤节点实现",
+      "priority": "high",
+      "steps": [
+        "创建 packages/workflow/src/nodes/page/ 目录",
+        "实现 init.ts（初始化节点）",
+        "实现 research.ts（需求研究节点）",
+        "实现 api-design.ts（API 设计节点）",
+        "实现 ui-design.ts（UI 设计节点）",
+        "实现 integration.ts（代码整合节点）",
+        "实现 validate.ts（质量验证节点）",
+        "实现 deliver.ts（任务交付节点）",
+        "创建 nodes/page/index.ts 导出"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/workflow"
+    },
+    {
+      "id": "feat-021",
+      "category": "graph",
+      "description": "Page-Codegen 工作流图 - LangGraph StateGraph 构建",
+      "priority": "high",
+      "steps": [
+        "实现 packages/workflow/src/page-graph.ts",
+        "定义 7 个节点和边（START → init → research → ... → deliver → END）",
+        "实现状态流转逻辑",
+        "更新 workflow/index.ts 导出 createPageCodegenGraph"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/workflow"
+    },
+    {
+      "id": "feat-022",
+      "category": "sdk",
+      "description": "SDK 聚合导出更新 - 导出 Page-Codegen 相关类型和工作流",
+      "priority": "medium",
+      "steps": [
+        "更新 packages/sdk/src/index.ts",
+        "导出 PageCodegenStateAnnotation、PageCodegenOptions 等类型",
+        "导出 createPageCodegenGraph、pageCodegen、pageCodegenStream 函数"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/sdk"
+    },
+    {
+      "id": "feat-023",
+      "category": "cli",
+      "description": "CLI 命令更新 - generate 命令使用新的 Page-Codegen 工作流",
+      "priority": "medium",
+      "steps": [
+        "重构 apps/cli/src/commands/generate.ts 使用 Page-Codegen 工作流",
+        "保持 Figma URL 作为输入来源",
+        "实现流式输出和进度显示",
+        "更新 CLI 步骤名称映射为 7 步工作流"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/cli"
+    },
+    {
+      "id": "feat-024",
+      "category": "workflow",
+      "description": "补全项目模板克隆功能 - 在 init 节点中恢复从 GitHub 克隆项目模板仓库的功能",
+      "priority": "high",
+      "steps": [
+        "更新 PageCodegenOptions 添加 templateRepo 选项",
+        "更新 PageCodegenStateAnnotation 添加 templateRepo 字段",
+        "更新 init 节点实现：创建沙箱、克隆模板仓库、安装依赖",
+        "更新 page-graph.ts 初始状态添加 templateRepo",
+        "更新 CLI generate 命令支持 --template 参数",
+        "更新相关测试用例"
+      ],
+      "passes": true,
+      "completedAt": "2026-02-25",
+      "package": "@x-codegen/workflow",
+      "notes": "恢复了原有的项目模板克隆功能，Page-Codegen 工作流现在会在 init 阶段先从 GitHub 克隆项目模板仓库"
     }
   ],
   "metadata": {
     "createdAt": "2026-02-13",
-    "lastUpdated": "2026-02-13",
-    "version": "1.0.0",
+    "lastUpdated": "2026-02-25",
+    "version": "1.2.0",
     "architecture": "monorepo"
   }
 }

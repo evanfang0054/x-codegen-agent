@@ -95,3 +95,27 @@ export type {
   ReActAgentConfig,
   PlanExecuteAgentConfig,
 } from './agents.js';
+
+// Page-Codegen 工作流相关类型
+export type {
+  PageWorkflowStep,
+  TaskPlanItem,
+  TaskPlan,
+  ResearchNote,
+  ResearchNotes,
+  APISchemaField,
+  APISchemaDefinition,
+  OriginalFileInfo,
+  AIWorkFileInfo,
+  MCPCallResult,
+  GherkinStep,
+  GherkinScenario,
+  GherkinFeature,
+  PageCodegenOptions,
+  PageCodegenMCPServers,
+  PageCodegenResult,
+  PageCodegenStreamEvent,
+  PageCodegenState,
+} from './page-workflow.js';
+
+export { PageCodegenStateAnnotation } from './page-workflow.js';

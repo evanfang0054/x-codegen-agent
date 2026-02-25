@@ -28,6 +28,7 @@ settings.local.json
 .history
 .turbo
 *.dp
+docs
 
 # Environment
 .env

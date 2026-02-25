@@ -237,3 +237,24 @@ export async function* generateCodeStream(
 // 导出工作流相关类型和函数
 export { createCodeGenGraph, createCodeGenGraphWithoutCheckpointer, type CodeGenGraph } from './graph.js';
 export { initNode, templateNode, completionNode, validateNode } from './nodes/index.js';
+
+// 导出 Page-Codegen 工作流
+export {
+  createPageCodegenGraph,
+  createPageCodegenGraphWithoutCheckpointer,
+  PageCodeGenerator,
+  createPageCodeGenerator,
+  pageCodegen,
+  pageCodegenStream,
+  type PageCodegenGraph,
+} from './page-graph.js';
+
+export {
+  initNode as pageInitNode,
+  researchNode,
+  apiDesignNode,
+  uiDesignNode,
+  integrationNode,
+  validateNode as pageValidateNode,
+  deliverNode,
+} from './nodes/page/index.js';

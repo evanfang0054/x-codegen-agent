@@ -42,9 +42,14 @@ vi.mock('ora', () => {
 
 // Mock @x-codegen/sdk
 vi.mock('@x-codegen/sdk', () => ({
-  generateCodeStream: vi.fn().mockImplementation(async function* () {
+  pageCodegenStream: vi.fn().mockImplementation(async function* () {
     yield { step: 'init', message: '初始化中...' };
-    yield { step: 'completed', message: '完成' };
+    yield { step: 'research', message: '研究需求...' };
+    yield { step: 'api-design', message: '设计 API...' };
+    yield { step: 'ui-design', message: '设计 UI...' };
+    yield { step: 'integration', message: '整合代码...' };
+    yield { step: 'validate', message: '验证代码...' };
+    yield { step: 'deliver', message: '完成' };
   }),
 }));
 
@@ -359,11 +364,23 @@ describe('GenerateCommand', () => {
       // invalid maxRetries 会使用默认值 3
     });
 
+    it('should handle optional project parameter', async () => {
+      const options: GenerateCommandOptions = {
+        figma: 'https://figma.com/file/xxx',
+        output: '/tmp/output',
+        project: 'booking-app',
+        maxRetries: '3',
+        verbose: false,
+      };
+
+      await generateCommand(options);
+    });
+
     it('should handle optional template parameter', async () => {
       const options: GenerateCommandOptions = {
         figma: 'https://figma.com/file/xxx',
         output: '/tmp/output',
-        template: 'https://github.com/example/template',
+        template: 'https://github.com/example/react-tailwind-template',
         maxRetries: '3',
         verbose: false,
       };
@@ -386,8 +403,8 @@ describe('GenerateCommand', () => {
 
   describe('错误处理', () => {
     it('should handle error step from stream', async () => {
-      // 重新 mock generateCodeStream 返回错误
-      vi.mocked(await import('@x-codegen/sdk')).generateCodeStream.mockImplementationOnce(
+      // 重新 mock pageCodegenStream 返回错误
+      vi.mocked(await import('@x-codegen/sdk')).pageCodegenStream.mockImplementationOnce(
         async function* () {
           yield { step: 'error', message: '生成失败' };
         }
@@ -404,8 +421,8 @@ describe('GenerateCommand', () => {
     });
 
     it('should handle exception from stream', async () => {
-      // 重新 mock generateCodeStream 抛出异常
-      vi.mocked(await import('@x-codegen/sdk')).generateCodeStream.mockImplementationOnce(
+      // 重新 mock pageCodegenStream 抛出异常
+      vi.mocked(await import('@x-codegen/sdk')).pageCodegenStream.mockImplementationOnce(
         async function* () {
           throw new Error('Stream error');
         }
