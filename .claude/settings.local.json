@@ -33,7 +33,10 @@
       "Bash(then cat \"$pkgtsconfig.json\")",
       "Bash(npx vitest run)",
       "Bash(ls:*)",
-      "Bash(nvm alias default:*)"
+      "Bash(nvm alias default:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" pnpm typecheck:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" pnpm:*)",
+      "Bash(pnpm --filter=@x-codegen/cli test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

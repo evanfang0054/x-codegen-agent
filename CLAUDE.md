@@ -161,7 +161,6 @@ const result = await executeWithFallback({
 测试文件统一放在各包的 `src/__tests__/` 目录中：
 
 ```
-packages/types/src/__tests__/page-workflow.test.ts
 packages/config/src/__tests__/config.test.ts
 packages/sandbox/src/__tests__/sandbox.test.ts
 packages/models/src/__tests__/models.test.ts

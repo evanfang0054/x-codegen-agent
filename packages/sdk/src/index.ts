@@ -54,6 +54,27 @@ export {
   createFigmaMCPClient,
   KnowledgeBaseMCPClient,
   createKnowledgeBaseMCPClient,
+  // 新增 MCP 客户端
+  OneDayMCPClient,
+  createOneDayMCPClient,
+  ApifoxMCPClient,
+  createApifoxMCPClient,
+  // 回退策略
+  executeWithFallback,
+  executeBatchWithFallback,
+  executeSequentialWithFallback,
+  createResilientMCPCaller,
+  // 类型
+  type OneDayMCPConfig,
+  type CompleteLogicCodeParams,
+  type GetStaticTemplateParams,
+  type StaticTemplateResult,
+  type ApifoxMCPConfig,
+  type GetAPIListParams,
+  type GetAPIDetailParams,
+  type APIListItem,
+  type RetryConfig,
+  type MCPCallOptions,
   // 代码生成工具
   ComponentGenerator,
   createComponentGenerator,
