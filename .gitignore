@@ -50,3 +50,7 @@ coverage/
 .changeset/*.md
 !.changeset/config.json
 !.changeset/README.md
+
+# Override global gitignore for this project
+!.claude/
+!openspec/
