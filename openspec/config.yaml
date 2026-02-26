@@ -3,30 +3,35 @@ schema: spec-driven
 # Project context
 # This is shown to AI when creating artifacts.
 context: |
-  Tech stack: TypeScript, Node.js 20+, LangChain.js, LangGraph
-  Architecture: pnpm workspaces + Turborepo Monorepo
-  Packages: types, config, sandbox, models, tools, agents, workflow, sdk, cli
-  Model providers: OpenAI, Anthropic, DeepSeek, 智谱 GLM, 通义千问
-  Testing: Vitest (247 tests)
-  Build: tsup (ESM only)
-  Lint: ESLint 9 + typescript-eslint
+  语言：中文（简体）
+  所有产出物必须用简体中文撰写。
+  技术术语如 "API", "MCP", "LangGraph", "LCEL" 等保持英文。
+  代码示例和文件路径保持英文。
 
-  Key patterns:
-  - LCEL (LangChain Expression Language) for chains
-  - LangGraph StateGraph for workflows
-  - MCP (Model Context Protocol) for external integrations
-  - MCP-first with local fallback strategy
+  技术栈: TypeScript, Node.js 20+, LangChain.js, LangGraph
+  架构: pnpm workspaces + Turborepo Monorepo
+  包: types, config, sandbox, models, tools, agents, workflow, sdk, cli
+  模型提供商: OpenAI, Anthropic, DeepSeek, 智谱 GLM, 通义千问
+  测试: Vitest (247 个测试用例)
+  构建: tsup (仅 ESM)
+  代码检查: ESLint 9 + typescript-eslint
 
-  Current version: 1.4.0
-  Completed features: 27 (tracked in task.json as historical record)
+  核心模式:
+  - LCEL (LangChain Expression Language) 用于链式调用
+  - LangGraph StateGraph 用于工作流编排
+  - MCP (Model Context Protocol) 用于外部集成
+  - MCP 优先、本地回退策略
 
-# Per-artifact rules
+  当前版本: 1.4.0
+  已完成功能: 27 个 (记录在 task.json 中作为历史参考)
+
+# 各产出物规则
 rules:
   proposal:
-    - Keep proposals focused on single features
-    - Include affected packages list
-    - Consider MCP integration implications
+    - 提案应聚焦于单一功能
+    - 包含受影响的包列表
+    - 考虑 MCP 集成的影响
   tasks:
-    - Break tasks into testable units
-    - Include test coverage requirements
-    - Follow existing package patterns
+    - 将任务拆分为可测试的单元
+    - 包含测试覆盖要求
+    - 遵循现有包的模式
