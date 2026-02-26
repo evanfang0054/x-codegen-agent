@@ -422,8 +422,9 @@
   ],
   "metadata": {
     "createdAt": "2026-02-13",
-    "lastUpdated": "2026-02-25",
+    "lastUpdated": "2026-02-26",
     "version": "1.4.0",
-    "architecture": "monorepo"
+    "architecture": "monorepo",
+    "note": "此文件为历史记录，自 2026-02-26 起项目迁移到 OpenSpec 变更管理系统。后续新功能请使用 /opsx:propose 创建变更提案。"
   }
 }

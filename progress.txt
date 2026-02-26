@@ -333,3 +333,41 @@
 - 所有测试通过
 - 更新 task.json 添加 feat-027，版本升级到 1.4.0
 - 下一步：生产环境测试、发布准备
+
+## [2026-02-26 10:37] 迁移到 OpenSpec 变更管理系统
+- 完成了从 task.json 到 OpenSpec 的增量迁移
+  - **保留 task.json 作为历史记录**
+    - 27 个已完成功能的完整记录
+    - 版本 1.4.0 的基线状态
+  - **初始化 OpenSpec**
+    - 安装 OpenSpec CLI v1.2.0
+    - 配置 openspec/config.yaml 项目上下文
+    - 启用 spec-driven 工作流 (proposal → specs → design → tasks)
+  - **配置 Claude Code 集成**
+    - 新增 /opsx:propose 命令 - 创建变更提案
+    - 新增 /opsx:apply 命令 - 实现变更任务
+    - 新增 /opsx:archive 命令 - 归档已完成变更
+    - 新增 /opsx:explore 命令 - 探索模式
+  - **后续工作流程**
+    - 新功能使用 /opsx:propose 创建提案
+    - 实现后使用 /opsx:archive 归档
+    - task.json 和 progress.txt 保留作为历史参考
+- 下一步：使用 OpenSpec 管理新功能开发
+
+## [2026-02-26 10:43] 历史记录迁移到 OpenSpec 归档
+- 完成了历史功能到 OpenSpec 归档的迁移
+  - **Phase 1: Core Foundation (2026-02-13)**
+    - 归档位置: openspec/changes/archive/2026-02-13-phase1-core-foundation/
+    - 包含功能: feat-001 ~ feat-015 (15 个核心基础功能)
+    - 内容: LLM 模型管理、配置系统、沙箱、MCP 集成、工作流、Agent、CLI、Monorepo 架构
+    - 测试覆盖: 178 个测试用例
+  - **Phase 2: Page-Codegen Workflow (2026-02-25)**
+    - 归档位置: openspec/changes/archive/2026-02-25-phase2-page-codegen-workflow/
+    - 包含功能: feat-016 ~ feat-027 (12 个 Page-Codegen 相关功能)
+    - 内容: 类型定义、提示词模板、MCP 客户端扩展、7 步工作流节点、智谱 GLM 集成
+    - 测试覆盖: 247 个测试用例 (新增 69 个)
+  - **总计迁移**
+    - 27 个功能
+    - 2 个归档变更记录
+    - proposal.md 包含完整功能列表和指标
+- 下一步：使用 /opsx:propose 创建新功能提案

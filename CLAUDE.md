@@ -252,116 +252,47 @@ const llmWithTools = model.bindTools([searchTool, calculatorTool]);
 const chain = prompt.pipe(llmWithTools);
 ```
 
-## Long-Running Agent 工作流程
+## OpenSpec 变更管理系统
 
-本项目采用 Anthropic 推荐的长时间运行 Agent 工作流程，解决跨多个上下文窗口的一致性进度问题。
+本项目使用 OpenSpec 进行规格驱动的变更管理，确保新功能有清晰的设计、规格和任务定义。
 
-参考文章：[Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
-
-### 核心问题
-
-长时间运行的 Agent 面临两个主要挑战：
-1. **一次性完成过多** - Agent 尝试一次性完成所有任务，导致上下文耗尽时功能半成品
-2. **过早宣布完成** - Agent 看到一些进展后过早认为任务已完成
-
-### 解决方案：双 Agent 架构
-
-#### 1. 初始化 Agent (Initializer Agent)
-首次运行时设置环境：
-- 创建 `task.json` - 功能需求列表，所有功能初始标记为 `passes: false`
-- 创建 `progress.txt` - 进度日志文件
-- 创建初始 git commit 记录文件变更
-
-#### 2. 编码 Agent (Coding Agent)
-每次后续会话的工作流程：
+### 工作流
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Coding Agent 工作流程                      │
-├─────────────────────────────────────────────────────────────┤
-│  1. 获取上下文                                                 │
-│     ├─ 运行 pwd 确认工作目录                                    │
-│     ├─ 读取 git log 了解最近工作                                │
-│     ├─ 读取 progress.txt 了解进度                              │
-│     └─ 读取 task.json 选择下一个待完成功能                       │
-│                                                              │
-│  2. 验证环境                                                   │
-│     ├─ 运行 init.sh 启动开发服务                                │
-│     └─ 执行基础端到端测试确保环境正常                             │
-│                                                              │
-│  3. 增量开发                                                   │
-│     ├─ 一次只处理一个功能                                       │
-│     ├─ 编写代码并测试                                           │
-│     └─ 端到端验证功能完整性                                      │
-│                                                              │
-│  4. 清理状态                                                   │
-│     ├─ 确保代码无重大 bug                                       │
-│     ├─ 更新 task.json 标记完成状态                              │
-│     ├─ git commit 提交变更                                     │
-│     └─ 更新 progress.txt 记录进度                               │
-└─────────────────────────────────────────────────────────────┘
+proposal → specs → design → tasks → implement → archive
 ```
 
-### 关键文件
+### 可用命令
 
-| 文件 | 用途 |
+| 命令 | 用途 |
 |------|------|
-| `task.json` | 功能需求列表，JSON 格式（比 Markdown 更不易被误改） |
-| `progress.txt` | 会话进度日志，记录每次工作内容 |
-| `init.sh` | 环境初始化脚本，启动开发服务器等 |
+| `/opsx:propose` | 创建新的变更提案 |
+| `/opsx:explore` | 进入探索模式思考问题 |
+| `/opsx:apply` | 实现变更中的任务 |
+| `/opsx:archive` | 归档已完成的变更 |
 
-### task.json 结构
+### 开发流程
 
-```json
-{
-  "project": "项目名称",
-  "features": [
-    {
-      "id": "feat-001",
-      "category": "functional",
-      "description": "功能描述",
-      "priority": "high",
-      "steps": ["步骤1", "步骤2", "步骤3"],
-      "passes": false,
-      "notes": "备注信息"
-    }
-  ]
-}
-```
+1. **创建提案** - 使用 `/opsx:propose "功能描述"` 创建变更提案
+2. **探索设计** - 使用 `/opsx:explore` 深入思考实现方案
+3. **实现任务** - 使用 `/opsx:apply <change-name>` 执行任务
+4. **归档变更** - 完成后使用 `/opsx:archive <change-name>` 归档
 
-**重要规则**：
-- 只允许修改 `passes` 字段来标记完成状态
-- 不允许删除或编辑测试/功能描述
-- 只有经过完整端到端测试后才能标记 `passes: true`
-
-### progress.txt 格式
+### 目录结构
 
 ```
-## [YYYY-MM-DD HH:MM] Session Summary
-- 完成了什么
-- 正在进行什么
-- 下一步需要做什么
-- 任何阻塞或问题
+openspec/
+├── config.yaml          # 项目上下文配置
+├── changes/             # 活跃变更
+│   └── archive/         # 已归档变更
+└── specs/               # 规格说明
 ```
 
-### 失败模式与解决方案
+### 历史记录
 
-| 问题 | 解决方案 |
-|------|---------|
-| 过早宣布项目完成 | 使用 task.json 明确列出所有功能 |
-| 留下 bug 或未记录的进度 | 会话结束时 git commit + 更新 progress.txt |
-| 过早标记功能完成 | 必须端到端测试后才能标记 passes: true |
-| 花时间弄清楚如何运行应用 | init.sh 脚本标准化启动流程 |
-
-### 会话启动检查清单
-
-每次新会话开始时：
-1. ✅ `pwd` - 确认工作目录
-2. ✅ 读取 `progress.txt` - 了解之前做了什么
-3. ✅ 读取 `task.json` - 选择下一个高优先级功能
-4. ✅ `git log --oneline -20` - 查看最近提交
-5. ✅ 运行 `init.sh` - 启动开发环境
-6. ✅ 执行基础测试 - 确保环境正常
+- `task.json` - 保留为历史参考（27 个已完成功能，v1.4.0）
+- `progress.txt` - 保留为进度日志
+- 归档变更位于 `openspec/changes/archive/`
 
 ## Tech Stack
 

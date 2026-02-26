@@ -315,7 +315,7 @@ pnpm release          # 发布到 npm
 | OpenAI | `OPENAI_API_KEY` | gpt-4o |
 | Anthropic | `ANTHROPIC_API_KEY` | claude-sonnet-4-20250514 |
 | DeepSeek | `DEEPSEEK_API_KEY` | deepseek-chat |
-| 智谱 GLM | `ZHIPU_API_KEY` | glm-4-plus |
+| 智谱 GLM | `ZHIPU_API_KEY` | glm-5 |
 | 通义千问 | `DASHSCOPE_API_KEY` | qwen-plus |
 | 月之暗面 | `MOONSHOT_API_KEY` | moonshot-v1-8k |
 | 百川 | `BAICHUAN_API_KEY` | Baichuan4 |
@@ -341,8 +341,8 @@ pnpm release          # 发布到 npm
 | @x-codegen/tools | 39 |
 | @x-codegen/agents | 20 |
 | @x-codegen/workflow | 25 |
-| @x-codegen/cli | 41 |
-| **总计** | **226** |
+| @x-codegen/cli | 83 |
+| **总计** | **247** |
 
 ## License
 

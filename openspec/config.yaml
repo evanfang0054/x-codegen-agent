@@ -1,0 +1,32 @@
+schema: spec-driven
+
+# Project context
+# This is shown to AI when creating artifacts.
+context: |
+  Tech stack: TypeScript, Node.js 20+, LangChain.js, LangGraph
+  Architecture: pnpm workspaces + Turborepo Monorepo
+  Packages: types, config, sandbox, models, tools, agents, workflow, sdk, cli
+  Model providers: OpenAI, Anthropic, DeepSeek, 智谱 GLM, 通义千问
+  Testing: Vitest (247 tests)
+  Build: tsup (ESM only)
+  Lint: ESLint 9 + typescript-eslint
+
+  Key patterns:
+  - LCEL (LangChain Expression Language) for chains
+  - LangGraph StateGraph for workflows
+  - MCP (Model Context Protocol) for external integrations
+  - MCP-first with local fallback strategy
+
+  Current version: 1.4.0
+  Completed features: 27 (tracked in task.json as historical record)
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Keep proposals focused on single features
+    - Include affected packages list
+    - Consider MCP integration implications
+  tasks:
+    - Break tasks into testable units
+    - Include test coverage requirements
+    - Follow existing package patterns
