@@ -1,6 +1,6 @@
 ---
 name: openspec-archive-change
-description: Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.
+description: 在实验性工作流中归档已完成的变更。当用户想要在实现完成后最终确定并归档变更时使用。
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:

@@ -1,6 +1,6 @@
 ---
 name: "OPSX: Explore"
-description: "Enter explore mode - think through ideas, investigate problems, clarify requirements"
+description: "进入探索模式 - 深入思考想法、调查问题、明确需求"
 category: Workflow
 tags: [workflow, explore, experimental, thinking]
 ---

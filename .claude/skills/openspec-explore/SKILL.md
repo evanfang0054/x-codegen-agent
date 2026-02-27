@@ -1,6 +1,6 @@
 ---
 name: openspec-explore
-description: Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.
+description: 进入探索模式 - 深入思考想法、调查问题、明确需求。当用户想要在变更之前或期间深入思考某事时使用。
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:

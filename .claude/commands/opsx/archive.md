@@ -1,6 +1,6 @@
 ---
 name: "OPSX: Archive"
-description: Archive a completed change in the experimental workflow
+description: 在实验性工作流中归档已完成的变更
 category: Workflow
 tags: [workflow, archive, experimental]
 ---
