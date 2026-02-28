@@ -323,3 +323,11 @@ pnpm view eslint
 # 安装特定版本（确保兼容性）
 pnpm add -D @eslint/js@9
 ```
+
+## 开发原则 (KISS)
+
+遵循 **KISS (Keep It Simple, Stupid)** 原则：
+- 保持代码简单直接，避免过度设计
+- 优先选择简单易懂的解决方案
+- 不需要的复杂度不要引入
+- 代码可读性优于炫技
