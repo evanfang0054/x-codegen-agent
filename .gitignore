@@ -53,4 +53,5 @@ coverage/
 
 # Override global gitignore for this project
 !.claude/
+.claude/worktrees/
 !openspec/
